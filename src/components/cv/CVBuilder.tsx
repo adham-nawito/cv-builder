@@ -4,6 +4,7 @@ import { CVCanvas } from '@/components/cv/CVCanvas';
 import { PropertiesPanel } from '@/components/cv/PropertiesPanel';
 import { ATSScorePanel } from '@/components/cv/ATSScorePanel';
 import { CVProvider, useCV } from '@/contexts/CVContext';
+import { PanelErrorBoundary } from '@/components/PanelErrorBoundary';
 import { useState } from 'react';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
@@ -28,18 +29,28 @@ function BuilderLayout() {
           <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block absolute md:relative z-20 h-full`}>
             <div className="flex flex-col h-full">
               <div className="flex-1 overflow-auto">
-                <ComponentPalette />
+                <PanelErrorBoundary panelName="Component Palette">
+                  <ComponentPalette />
+                </PanelErrorBoundary>
               </div>
-              <ATSScorePanel />
+              <PanelErrorBoundary panelName="ATS Score">
+                <ATSScorePanel />
+              </PanelErrorBoundary>
             </div>
           </div>
         )}
 
         {/* Canvas */}
-        <CVCanvas />
+        <PanelErrorBoundary panelName="Canvas">
+          <CVCanvas />
+        </PanelErrorBoundary>
 
         {/* Right sidebar */}
-        {!state.isPreviewMode && <PropertiesPanel />}
+        {!state.isPreviewMode && (
+          <PanelErrorBoundary panelName="Properties">
+            <PropertiesPanel />
+          </PanelErrorBoundary>
+        )}
       </div>
     </div>
   );
