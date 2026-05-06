@@ -5,7 +5,7 @@ export const SCHEMA_VERSION = 1
 // ── Block content types ──────────────────────────────────────────────────────
 
 const TextBlockSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   type: z.literal('text'),
   value: z.string(),
   bold: z.boolean().optional(),
@@ -13,13 +13,13 @@ const TextBlockSchema = z.object({
 })
 
 const ListBlockSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   type: z.literal('list'),
   items: z.array(z.string()),
 })
 
 const DateRangeBlockSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   type: z.literal('dateRange'),
   start: z.string().optional(),
   end: z.string().optional(),
@@ -35,7 +35,7 @@ const BlockSchema = z.discriminatedUnion('type', [
 // ── Section types ────────────────────────────────────────────────────────────
 
 const BaseSectionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   title: z.string(),
   visible: z.boolean().default(true),
   blocks: z.array(BlockSchema),
@@ -80,7 +80,7 @@ export const CustomSectionSchema = BaseSectionSchema.extend({
 })
 
 export const SpacerSectionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   type: z.literal('spacer'),
   title: z.string().default(''),
   visible: z.boolean().default(true),
@@ -104,13 +104,23 @@ export const SectionSchema = z.discriminatedUnion('type', [
 
 export const CVSchema = z.object({
   version: z.number().default(SCHEMA_VERSION),
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().default('Untitled CV'),
   template: z.enum(['minimal', 'modern', 'compact']).default('minimal'),
   sections: z.array(SectionSchema),
-  updatedAt: z.string().datetime().optional(),
-  createdAt: z.string().datetime(),
+  updatedAt: z.iso.datetime().optional(),
+  createdAt: z.iso.datetime(),
 })
+
+export type PersonalInfoSection = z.infer<typeof PersonalInfoSectionSchema>
+export type ExperienceSection = z.infer<typeof ExperienceSectionSchema>
+export type EducationSection = z.infer<typeof EducationSectionSchema>
+export type SkillsSection = z.infer<typeof SkillsSectionSchema>
+export type ProjectsSection = z.infer<typeof ProjectsSectionSchema>
+export type CertificationsSection = z.infer<typeof CertificationsSectionSchema>
+export type LanguagesSection = z.infer<typeof LanguagesSectionSchema>
+export type CustomSection = z.infer<typeof CustomSectionSchema>
+export type SpacerSection = z.infer<typeof SpacerSectionSchema>
 
 export type Block = z.infer<typeof BlockSchema>
 export type TextBlock = z.infer<typeof TextBlockSchema>
