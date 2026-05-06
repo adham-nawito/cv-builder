@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "newCv": "New CV",
+    "templates": "Templates",
+    "viewCode": "View Code",
+    "export": "Export",
+    "preview": "Preview"
+  },
+  "sidebar": {
+    "sections": "Sections",
+    "addSection": "Add Section"
+  },
+  "properties": {
+    "title": "Properties",
+    "fontSize": "Font Size",
+    "spacing": "Spacing",
+    "visibility": "Visible"
+  },
+  "canvas": {
+    "empty": "Drag a section here to get started"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "loading": "Loading..."
+  },
+  "errors": {
+    "storageFull": "Storage is full. Please delete some CVs to free up space.",
+    "exportFailed": "Export failed. Please try again.",
+    "importInvalid": "Invalid CV file. Please check the file and try again.",
+    "generic": "Something went wrong. Please refresh the page."
+  }
+}

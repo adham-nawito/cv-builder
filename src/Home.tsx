@@ -1,11 +1,6 @@
-import { Button } from '@/components/ui/button'
+import { AppLayout } from '@/components/layout/AppLayout'
 import './App.css'
 
-function Home () {
-
-  return (
-   <Button>Hello from home</Button>
-  )
+export default function Home() {
+  return <AppLayout />
 }
-
-export default Home
