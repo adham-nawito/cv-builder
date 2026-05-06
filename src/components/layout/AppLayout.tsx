@@ -4,14 +4,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import type { PanelImperativeHandle, PanelSize } from 'react-resizable-panels'
+import type { PanelImperativeHandle } from 'react-resizable-panels'
 import { Navbar } from './Navbar'
 import { SidebarPanel } from './SidebarPanel'
 import { CanvasPanel } from './CanvasPanel'
 import { PropertiesPanel } from './PropertiesPanel'
 import { PanelErrorBoundary } from '@/components/error-boundary/PanelErrorBoundary'
 import { CommandPalette } from '@/components/CommandPalette'
-import { cn } from '@/lib/utils'
 
 export function AppLayout() {
   const sidebarRef = useRef<PanelImperativeHandle | null>(null)
@@ -22,25 +21,21 @@ export function AppLayout() {
   function toggleSidebar() {
     if (sidebarCollapsed) {
       sidebarRef.current?.expand()
+      setSidebarCollapsed(false)
     } else {
       sidebarRef.current?.collapse()
+      setSidebarCollapsed(true)
     }
   }
 
   function toggleProperties() {
     if (propertiesCollapsed) {
       propertiesRef.current?.expand()
+      setPropertiesCollapsed(false)
     } else {
       propertiesRef.current?.collapse()
+      setPropertiesCollapsed(true)
     }
-  }
-
-  function handleSidebarResize(size: PanelSize) {
-    setSidebarCollapsed(size.asPercentage === 0)
-  }
-
-  function handlePropertiesResize(size: PanelSize) {
-    setPropertiesCollapsed(size.asPercentage === 0)
   }
 
   return (
@@ -53,19 +48,17 @@ export function AppLayout() {
       />
       <CommandPalette />
       <ResizablePanelGroup orientation="horizontal" className="flex-1 overflow-hidden">
-        {/* Left sidebar */}
+        {/* Left sidebar — collapses to icon strip (~48px = ~3.5% at 1400px wide) */}
         <ResizablePanel
           panelRef={sidebarRef}
           defaultSize={22}
-          minSize={16}
+          minSize={3}
           maxSize={35}
           collapsible
-          collapsedSize={0}
-          onResize={handleSidebarResize}
-          className={cn('overflow-hidden', sidebarCollapsed && 'min-w-0')}
+          collapsedSize={3}
         >
           <PanelErrorBoundary name="Sidebar">
-            <SidebarPanel />
+            <SidebarPanel collapsed={sidebarCollapsed} />
           </PanelErrorBoundary>
         </ResizablePanel>
 
@@ -80,19 +73,17 @@ export function AppLayout() {
 
         <ResizableHandle withHandle />
 
-        {/* Right properties panel */}
+        {/* Right properties panel — collapses to icon strip */}
         <ResizablePanel
           panelRef={propertiesRef}
           defaultSize={24}
-          minSize={18}
+          minSize={3}
           maxSize={40}
           collapsible
-          collapsedSize={0}
-          onResize={handlePropertiesResize}
-          className={cn('overflow-hidden', propertiesCollapsed && 'min-w-0')}
+          collapsedSize={3}
         >
           <PanelErrorBoundary name="Properties">
-            <PropertiesPanel />
+            <PropertiesPanel collapsed={propertiesCollapsed} />
           </PanelErrorBoundary>
         </ResizablePanel>
       </ResizablePanelGroup>
