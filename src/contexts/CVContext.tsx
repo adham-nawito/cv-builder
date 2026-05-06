@@ -1,7 +1,12 @@
-import React, { createContext, useContext, useCallback, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useCallback, useReducer, useEffect, useRef, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import type { CVData, CVSection, SectionType, SectionContent } from '@/types/cv';
 import { createSampleCV } from '@/utils/sampleData';
+import { arrayMove } from '@dnd-kit/sortable';
+
+// ---------------------------------------------------------------------------
+// State & Action types
+// ---------------------------------------------------------------------------
 
 interface CVState {
   cv: CVData;
@@ -20,6 +25,7 @@ type Action =
   | { type: 'DELETE_SECTION'; payload: string }
   | { type: 'DUPLICATE_SECTION'; payload: string }
   | { type: 'REORDER_SECTIONS'; payload: CVSection[] }
+  | { type: 'MOVE_SECTION'; payload: { id: string; direction: 'up' | 'down' } }
   | { type: 'SELECT_SECTION'; payload: string | null }
   | { type: 'TOGGLE_LOCK'; payload: string }
   | { type: 'SET_TEMPLATE'; payload: CVData['template'] }
@@ -30,6 +36,10 @@ type Action =
   | { type: 'TOGGLE_PREVIEW' }
   | { type: 'NEW_CV' }
   | { type: 'LOAD_CV'; payload: CVData };
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function getDefaultContent(type: SectionType): SectionContent {
   switch (type) {
@@ -71,9 +81,24 @@ const SECTION_TITLES: Record<SectionType, string> = {
 
 function pushHistory(state: CVState): CVState {
   const newHistory = state.history.slice(0, state.historyIndex + 1);
-  newHistory.push(JSON.parse(JSON.stringify(state.cv)));
+  newHistory.push(structuredClone(state.cv));
   return { ...state, history: newHistory.slice(-50), historyIndex: newHistory.length - 1 };
 }
+
+function now() { return new Date().toISOString(); }
+
+function applyMoveSection(state: CVState, id: string, direction: 'up' | 'down'): CVState {
+  const idx = state.cv.sections.findIndex(s => s.id === id);
+  if (idx === -1) return state;
+  const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (targetIdx < 0 || targetIdx >= state.cv.sections.length) return state;
+  const next = pushHistory(state);
+  return { ...next, cv: { ...next.cv, sections: arrayMove(next.cv.sections, idx, targetIdx), updatedAt: now() } };
+}
+
+// ---------------------------------------------------------------------------
+// Reducer
+// ---------------------------------------------------------------------------
 
 function reducer(state: CVState, action: Action): CVState {
   switch (action.type) {
@@ -94,46 +119,48 @@ function reducer(state: CVState, action: Action): CVState {
       } else {
         sections.push(newSection);
       }
-      const newState = pushHistory(state);
-      return { ...newState, cv: { ...newState.cv, sections, updatedAt: new Date().toISOString() }, selectedSectionId: newSection.id };
+      const next = pushHistory(state);
+      return { ...next, cv: { ...next.cv, sections, updatedAt: now() }, selectedSectionId: newSection.id };
     }
 
     case 'UPDATE_SECTION': {
       const sections = state.cv.sections.map(s =>
         s.id === action.payload.id ? { ...s, ...action.payload.updates } : s
       );
-      const newState = pushHistory(state);
-      return { ...newState, cv: { ...newState.cv, sections, updatedAt: new Date().toISOString() } };
+      const next = pushHistory(state);
+      return { ...next, cv: { ...next.cv, sections, updatedAt: now() } };
     }
 
     case 'UPDATE_SECTION_CONTENT': {
       const sections = state.cv.sections.map(s =>
         s.id === action.payload.id ? { ...s, content: action.payload.content } : s
       );
-      return { ...state, cv: { ...state.cv, sections, updatedAt: new Date().toISOString() } };
+      return { ...state, cv: { ...state.cv, sections, updatedAt: now() } };
     }
 
     case 'DELETE_SECTION': {
-      const newState = pushHistory(state);
-      const sections = newState.cv.sections.filter(s => s.id !== action.payload);
-      return { ...newState, cv: { ...newState.cv, sections, updatedAt: new Date().toISOString() }, selectedSectionId: null };
+      const next = pushHistory(state);
+      const sections = next.cv.sections.filter(s => s.id !== action.payload);
+      return { ...next, cv: { ...next.cv, sections, updatedAt: now() }, selectedSectionId: null };
     }
 
     case 'DUPLICATE_SECTION': {
       const idx = state.cv.sections.findIndex(s => s.id === action.payload);
       if (idx === -1) return state;
-      const original = state.cv.sections[idx];
-      const duplicate: CVSection = { ...JSON.parse(JSON.stringify(original)), id: uuid() };
+      const duplicate: CVSection = { ...structuredClone(state.cv.sections[idx]), id: uuid() };
       const sections = [...state.cv.sections];
       sections.splice(idx + 1, 0, duplicate);
-      const newState = pushHistory(state);
-      return { ...newState, cv: { ...newState.cv, sections, updatedAt: new Date().toISOString() }, selectedSectionId: duplicate.id };
+      const next = pushHistory(state);
+      return { ...next, cv: { ...next.cv, sections, updatedAt: now() }, selectedSectionId: duplicate.id };
     }
 
     case 'REORDER_SECTIONS': {
-      const newState = pushHistory(state);
-      return { ...newState, cv: { ...newState.cv, sections: action.payload, updatedAt: new Date().toISOString() } };
+      const next = pushHistory(state);
+      return { ...next, cv: { ...next.cv, sections: action.payload, updatedAt: now() } };
     }
+
+    case 'MOVE_SECTION':
+      return applyMoveSection(state, action.payload.id, action.payload.direction);
 
     case 'SELECT_SECTION':
       return { ...state, selectedSectionId: action.payload };
@@ -151,13 +178,13 @@ function reducer(state: CVState, action: Action): CVState {
     case 'UNDO': {
       if (state.historyIndex <= 0) return state;
       const newIndex = state.historyIndex - 1;
-      return { ...state, cv: JSON.parse(JSON.stringify(state.history[newIndex])), historyIndex: newIndex };
+      return { ...state, cv: structuredClone(state.history[newIndex]), historyIndex: newIndex };
     }
 
     case 'REDO': {
       if (state.historyIndex >= state.history.length - 1) return state;
       const newIndex = state.historyIndex + 1;
-      return { ...state, cv: JSON.parse(JSON.stringify(state.history[newIndex])), historyIndex: newIndex };
+      return { ...state, cv: structuredClone(state.history[newIndex]), historyIndex: newIndex };
     }
 
     case 'TOGGLE_DARK_MODE':
@@ -172,8 +199,6 @@ function reducer(state: CVState, action: Action): CVState {
     }
 
     case 'LOAD_CV':
-      return { ...state, cv: action.payload, selectedSectionId: null, history: [action.payload], historyIndex: 0 };
-
     case 'IMPORT_CV':
       return { ...state, cv: action.payload, selectedSectionId: null, history: [action.payload], historyIndex: 0 };
 
@@ -181,6 +206,10 @@ function reducer(state: CVState, action: Action): CVState {
       return state;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Context
+// ---------------------------------------------------------------------------
 
 interface CVContextValue {
   state: CVState;
@@ -195,12 +224,12 @@ interface CVContextValue {
 
 const CVContext = createContext<CVContextValue | null>(null);
 
-export function CVProvider({ children }: { children: React.ReactNode }) {
-  const loadedCV = React.useMemo(() => {
+export function CVProvider({ children }: { readonly children: React.ReactNode }) {
+  const loadedCV = useMemo(() => {
     try {
       const saved = localStorage.getItem('cvforge_current');
       if (saved) return JSON.parse(saved) as CVData;
-    } catch {}
+    } catch { /* ignore */ }
     return createSampleCV();
   }, []);
 
@@ -213,26 +242,55 @@ export function CVProvider({ children }: { children: React.ReactNode }) {
     isPreviewMode: false,
   });
 
-  // Save to localStorage
+  // Keep a ref to the current selectedSectionId so the keyboard handler
+  // (registered once) can always read the latest value without stale closure.
+  const selectedIdRef = useRef<string | null>(null);
+  selectedIdRef.current = state.selectedSectionId;
+
+  // Persist CV
   useEffect(() => {
     localStorage.setItem('cvforge_current', JSON.stringify(state.cv));
   }, [state.cv]);
 
-  // Dark mode
+  // Dark mode class
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.isDarkMode);
   }, [state.isDarkMode]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts — registered once, uses ref for fresh selected id
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+      const meta = e.metaKey || e.ctrlKey;
+      const target = e.target as HTMLElement;
+      const isEditing = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+      if (meta && e.key === 'z') {
         e.preventDefault();
         dispatch({ type: e.shiftKey ? 'REDO' : 'UNDO' });
+        return;
+      }
+
+      if (isEditing) return;
+
+      const selected = selectedIdRef.current;
+      if (selected === null) return;
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        dispatch({ type: 'DELETE_SECTION', payload: selected });
+      } else if (meta && e.key === 'd') {
+        e.preventDefault();
+        dispatch({ type: 'DUPLICATE_SECTION', payload: selected });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        dispatch({ type: 'MOVE_SECTION', payload: { id: selected, direction: 'up' } });
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        dispatch({ type: 'MOVE_SECTION', payload: { id: selected, direction: 'down' } });
       }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    globalThis.addEventListener('keydown', handler);
+    return () => globalThis.removeEventListener('keydown', handler);
   }, []);
 
   const addSection = useCallback((type: SectionType) => {
@@ -255,10 +313,15 @@ export function CVProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SELECT_SECTION', payload: id });
   }, []);
 
-  const selectedSection = state.cv.sections.find(s => s.id === state.selectedSectionId) || null;
+  const selectedSection = state.cv.sections.find(s => s.id === state.selectedSectionId) ?? null;
+
+  const value = useMemo<CVContextValue>(() => ({
+    state, dispatch, addSection, updateSectionContent,
+    deleteSection, duplicateSection, selectSection, selectedSection,
+  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection]);
 
   return (
-    <CVContext.Provider value={{ state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection }}>
+    <CVContext.Provider value={value}>
       {children}
     </CVContext.Provider>
   );
