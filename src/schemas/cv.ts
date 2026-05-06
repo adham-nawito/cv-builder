@@ -38,6 +38,7 @@ const BaseSectionSchema = z.object({
   id: z.uuid(),
   title: z.string(),
   visible: z.boolean().default(true),
+  locked: z.boolean().default(false),
   blocks: z.array(BlockSchema),
 })
 
@@ -84,6 +85,7 @@ export const SpacerSectionSchema = z.object({
   type: z.literal('spacer'),
   title: z.string().default(''),
   visible: z.boolean().default(true),
+  locked: z.boolean().default(false),
   blocks: z.array(BlockSchema).default([]),
   height: z.number().min(4).max(120).default(24),
 })
