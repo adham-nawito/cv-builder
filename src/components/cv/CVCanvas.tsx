@@ -1,14 +1,14 @@
 import { useCV } from '@/contexts/CVContext';
-import { CVSectionComponent } from './CVSectionComponent';
+import { CVSectionComponent } from './CVSectionComponent.tsx';
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, TouchSensor,
-  useSensor, useSensors, type DragEndEvent, DragOverlay, type DragStartEvent
+  useSensor, useSensors, type DragEndEvent, type DragStartEvent
 } from '@dnd-kit/core';
 import {
   SortableContext, verticalListSortingStrategy, arrayMove
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export function CVCanvas() {
   const { state, dispatch, selectSection } = useCV();

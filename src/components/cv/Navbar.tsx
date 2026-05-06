@@ -1,5 +1,5 @@
 import { useCV } from '@/contexts/CVContext';
-import { useI18n } from '@/i18n/I18nContext';
+import { useI18n } from '../../lib/I18nContext';
 import { generateHTML } from '@/utils/generateHTML';
 import { parseHTMLToCV } from '@/utils/parseHTML';
 import { exportPDF, exportHTML } from '@/utils/exportUtils';
@@ -15,7 +15,7 @@ import {
   FileText, Plus, Layout, Code, Download, Eye, EyeOff, Moon, Sun,
   Undo2, Redo2, Menu, X, ChevronDown, Save, FolderOpen, Upload, Globe, Linkedin
 } from 'lucide-react';
-import { LOCALES } from '@/i18n/translations';
+import { LOCALES } from '../../lib/translations';
 
 const TEMPLATES: { key: TemplateType; label: string; desc: string; accent: string }[] = [
   { key: 'classic', label: 'Classic', desc: 'Traditional blue headings', accent: '#2563eb' },

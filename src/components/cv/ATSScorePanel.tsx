@@ -1,8 +1,8 @@
 import { useCV } from '@/contexts/CVContext';
-import { calculateATSScore, type ATSScore, type ATSTip } from '@/utils/atsScorer';
+import { calculateATSScore, type ATSScore, type ATSTip } from '../../utils/atsScore';
 import { useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Info, ChevronDown, ChevronUp, Target, TrendingUp } from 'lucide-react';
-import { useI18n } from '@/i18n/I18nContext';
+import { useI18n } from '../../lib/I18nContext';
 
 const categoryIcons: Record<ATSTip['category'], typeof AlertTriangle> = {
   critical: AlertTriangle,
