@@ -113,11 +113,15 @@
     @apply bg-canvas flex items-start justify-center overflow-auto p-6;
   }
   .cv-paper {
-    @apply bg-paper shadow-paper;
+    @apply bg-paper shadow-paper prose prose-sm max-w-none;
     width: 210mm;
     min-height: 297mm;
     padding: 20mm;
     position: relative;
+    /* Reset prose defaults that fight the template styles */
+    --tw-prose-body: inherit;
+    --tw-prose-headings: inherit;
+    --tw-prose-links: inherit;
   }
   .cv-section {
     @apply relative rounded-sm transition-all duration-150;
