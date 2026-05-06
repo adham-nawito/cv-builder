@@ -1,7 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
-const Home = lazy(() => import('./Home'))
+const Home = lazy(() => import('./App'))
 
 const rootRoute = createRootRoute({
   component: () => (
