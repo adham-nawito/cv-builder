@@ -1,7 +1,8 @@
 import { useCV } from '@/contexts/CVContext';
 import { v4 as uuid } from 'uuid';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import type {
+  SectionType,
   PersonalInfoContent, SummaryContent, ExperienceContent, EducationContent,
   SkillsContent, ProjectsContent, CertificationsContent, LanguagesContent,
   SpacerContent, ExperienceItem, EducationItem,
@@ -410,11 +411,66 @@ function SpacerProps({ id, content }: { readonly id: string; readonly content: S
 }
 
 // ---------------------------------------------------------------------------
+// Per-section ATS tips
+// ---------------------------------------------------------------------------
+
+const ATS_TIPS: Record<SectionType, string[]> = {
+  'personal-info':  ['Include email, phone, and LinkedIn URL', 'Keep location to city/country only', 'No photo — ATS systems ignore or reject images'],
+  'summary':        ['2–4 sentences max', 'Include your target job title', 'Mirror keywords from the job description'],
+  'experience':     ['Start bullets with strong action verbs', 'Include measurable results (%, $, time)', 'List most recent roles first'],
+  'education':      ['Spell out degree names in full', 'Include graduation year', 'GPA optional unless above 3.5'],
+  'skills':         ['Use exact tool/technology names', 'Group by category for readability', 'Match keywords from the job posting'],
+  'projects':       ['Link to live demos or GitHub', 'Name the tech stack explicitly', 'Quantify impact where possible'],
+  'certifications': ['Include issuer name and date', 'List active/unexpired certs only', 'Spell out acronyms once'],
+  'languages':      ['Use standard proficiency labels (Native, C1, B2…)', 'Only list languages relevant to the role'],
+  'custom':         ['Keep headings simple and recognisable', 'Avoid tables or multi-column layouts'],
+  'spacer':         ['Spacers are stripped by ATS parsers — use sparingly'],
+};
+
+// ---------------------------------------------------------------------------
+// Slider primitive (wraps native range input)
+// ---------------------------------------------------------------------------
+
+function SliderField({
+  label, value, min, max, step, unit, onChange,
+}: {
+  readonly label: string;
+  readonly value: number;
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+  readonly unit: string;
+  readonly onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <Label>{label}</Label>
+        <span className="text-xs text-muted-foreground tabular-nums">{value}{unit}</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
+        className="w-full h-1.5 rounded-full accent-primary"
+      />
+      <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
+        <span>{min}{unit}</span>
+        <span>{max}{unit}</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main panel
 // ---------------------------------------------------------------------------
 
 export function PropertiesPanel() {
-  const { selectedSection, dispatch } = useCV();
+  const { selectedSection, dispatch, setSectionStyle } = useCV();
 
   if (!selectedSection) {
     return (
@@ -422,19 +478,29 @@ export function PropertiesPanel() {
         <div className="p-4 border-b border-border">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Properties</h3>
         </div>
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-6 flex-col gap-2">
           <p className="text-sm text-muted-foreground text-center">Select a section to edit its properties</p>
+          <p className="text-xs text-muted-foreground/60 text-center">⌘K to open command palette</p>
         </div>
       </div>
     );
   }
 
-  const { id, type, title, content, locked } = selectedSection;
+  const { id, type, title, content, locked, hidden, style } = selectedSection;
+  const fontSize = style?.fontSize ?? 14;
+  const spacing  = style?.spacing  ?? 20;
 
   return (
     <div className="w-64 border-l border-border bg-card hidden lg:flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border flex items-center justify-between">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Properties</h3>
+        <button
+          onClick={() => dispatch({ type: 'TOGGLE_VISIBILITY', payload: id })}
+          className={`p-1 rounded transition-colors ${hidden ? 'text-muted-foreground/40 hover:text-muted-foreground' : 'text-primary hover:text-primary/70'}`}
+          title={hidden ? 'Show section' : 'Hide section'}
+        >
+          {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -449,6 +515,26 @@ export function PropertiesPanel() {
             disabled={locked}
           />
         </div>
+
+        {/* Style controls */}
+        <SliderField
+          label="Font Size"
+          value={fontSize}
+          min={10}
+          max={20}
+          step={1}
+          unit="px"
+          onChange={v => setSectionStyle(id, { fontSize: v })}
+        />
+        <SliderField
+          label="Section Spacing"
+          value={spacing}
+          min={4}
+          max={60}
+          step={4}
+          unit="px"
+          onChange={v => setSectionStyle(id, { spacing: v })}
+        />
 
         <Divider />
 
@@ -465,15 +551,13 @@ export function PropertiesPanel() {
 
         <Divider />
 
-        {/* ATS tips */}
+        {/* Per-section ATS tips */}
         <div className="bg-accent/50 rounded-lg p-3">
           <p className="text-xs font-semibold text-accent-foreground mb-1">ATS Tips</p>
           <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• Use standard section headings</li>
-            <li>• Keep single-column layout</li>
-            <li>• Avoid images and graphics</li>
-            <li>• Use bullet points for achievements</li>
-            <li>• Include relevant keywords</li>
+            {ATS_TIPS[type]?.map(tip => (
+              <li key={tip}>• {tip}</li>
+            ))}
           </ul>
         </div>
       </div>

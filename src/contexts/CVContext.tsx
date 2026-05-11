@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useCallback, useReducer, useEffect, useRef, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import type { CVData, CVSection, SectionType, SectionContent } from '@/types/cv';
+export type { CVSectionStyle } from '@/types/cv';
 import { createSampleCV } from '@/utils/sampleData';
 import { arrayMove } from '@dnd-kit/sortable';
 
@@ -28,6 +29,8 @@ type Action =
   | { type: 'MOVE_SECTION'; payload: { id: string; direction: 'up' | 'down' } }
   | { type: 'SELECT_SECTION'; payload: string | null }
   | { type: 'TOGGLE_LOCK'; payload: string }
+  | { type: 'TOGGLE_VISIBILITY'; payload: string }
+  | { type: 'SET_SECTION_STYLE'; payload: { id: string; style: import('@/types/cv').CVSectionStyle } }
   | { type: 'SET_TEMPLATE'; payload: CVData['template'] }
   | { type: 'IMPORT_CV'; payload: CVData }
   | { type: 'UNDO' }
@@ -172,6 +175,20 @@ function reducer(state: CVState, action: Action): CVState {
       return { ...state, cv: { ...state.cv, sections } };
     }
 
+    case 'TOGGLE_VISIBILITY': {
+      const sections = state.cv.sections.map(s =>
+        s.id === action.payload ? { ...s, hidden: !s.hidden } : s
+      );
+      return { ...state, cv: { ...state.cv, sections } };
+    }
+
+    case 'SET_SECTION_STYLE': {
+      const sections = state.cv.sections.map(s =>
+        s.id === action.payload.id ? { ...s, style: { ...s.style, ...action.payload.style } } : s
+      );
+      return { ...state, cv: { ...state.cv, sections } };
+    }
+
     case 'SET_TEMPLATE':
       return { ...state, cv: { ...state.cv, template: action.payload } };
 
@@ -220,6 +237,7 @@ interface CVContextValue {
   duplicateSection: (id: string) => void;
   selectSection: (id: string | null) => void;
   selectedSection: CVSection | null;
+  setSectionStyle: (id: string, style: import('@/types/cv').CVSectionStyle) => void;
 }
 
 const CVContext = createContext<CVContextValue | null>(null);
@@ -247,9 +265,15 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
   const selectedIdRef = useRef<string | null>(null);
   selectedIdRef.current = state.selectedSectionId;
 
+  // saveCVRef lets the keyboard shortcut call the save function without a stale closure
+  const saveCVRef = useRef<(() => void) | null>(null);
+
   // Persist CV
   useEffect(() => {
     localStorage.setItem('cvforge_current', JSON.stringify(state.cv));
+    saveCVRef.current = () => {
+      localStorage.setItem('cvforge_current', JSON.stringify(state.cv));
+    };
   }, [state.cv]);
 
   // Dark mode class
@@ -267,6 +291,13 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
       if (meta && e.key === 'z') {
         e.preventDefault();
         dispatch({ type: e.shiftKey ? 'REDO' : 'UNDO' });
+        return;
+      }
+
+      if (meta && e.key === 's') {
+        e.preventDefault();
+        // Explicit save — persisted automatically but this triggers a visual cue
+        saveCVRef.current?.();
         return;
       }
 
@@ -313,12 +344,16 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
     dispatch({ type: 'SELECT_SECTION', payload: id });
   }, []);
 
+  const setSectionStyle = useCallback((id: string, style: import('@/types/cv').CVSectionStyle) => {
+    dispatch({ type: 'SET_SECTION_STYLE', payload: { id, style } });
+  }, []);
+
   const selectedSection = state.cv.sections.find(s => s.id === state.selectedSectionId) ?? null;
 
   const value = useMemo<CVContextValue>(() => ({
     state, dispatch, addSection, updateSectionContent,
-    deleteSection, duplicateSection, selectSection, selectedSection,
-  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection]);
+    deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle,
+  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle]);
 
   return (
     <CVContext.Provider value={value}>

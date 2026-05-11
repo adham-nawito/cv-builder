@@ -173,12 +173,16 @@ export function CVSectionComponent({ section, isPreview }: Props) {
     }
   };
 
+  if (section.hidden && isPreview) return null;
+
   return (
     <div
       ref={setNodeRef}
+      role={isPreview ? undefined : 'button'}
+      tabIndex={isPreview ? undefined : 0}
       style={sectionStyle}
       aria-selected={isPreview ? undefined : isSelected}
-      className={`cv-section group ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${isPreview ? '' : 'cursor-pointer'}`}
+      className={`cv-section group ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${isPreview ? '' : 'cursor-pointer'} ${section.hidden ? 'opacity-40' : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
@@ -226,18 +230,28 @@ interface RendererProps {
 }
 
 function SectionRenderer({ section, isPreview, template }: RendererProps) {
+  const hasStyle = section.style?.fontSize || section.style?.spacing;
+  const wrapperStyle: React.CSSProperties = hasStyle ? {
+    ...(section.style?.fontSize ? { fontSize: section.style.fontSize } : {}),
+    ...(section.style?.spacing  ? { marginBottom: section.style.spacing } : {}),
+  } : {};
+
+  let inner: React.ReactNode;
   switch (section.type) {
-    case 'personal-info':    return <PersonalInfoRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'summary':          return <SummaryRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'experience':       return <ExperienceRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'education':        return <EducationRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'skills':           return <SkillsRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'projects':         return <ProjectsRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'certifications':   return <CertificationsRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'languages':        return <LanguagesRenderer section={section} isPreview={isPreview} template={template} />;
-    case 'spacer':           return <SpacerRenderer section={section} />;
-    default:                 return <div className="p-2 text-muted-foreground text-sm">Custom section</div>;
+    case 'personal-info':    inner = <PersonalInfoRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'summary':          inner = <SummaryRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'experience':       inner = <ExperienceRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'education':        inner = <EducationRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'skills':           inner = <SkillsRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'projects':         inner = <ProjectsRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'certifications':   inner = <CertificationsRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'languages':        inner = <LanguagesRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'spacer':           inner = <SpacerRenderer section={section} />; break;
+    default:                 inner = <div className="p-2 text-muted-foreground text-sm">Custom section</div>;
   }
+
+  if (!hasStyle) return <>{inner}</>;
+  return <div style={wrapperStyle}>{inner}</div>;
 }
 
 // ---------------------------------------------------------------------------

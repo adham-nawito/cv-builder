@@ -3,6 +3,7 @@ import { ComponentPalette } from '@/components/cv/ComponentPalette';
 import { CVCanvas } from '@/components/cv/CVCanvas';
 import { PropertiesPanel } from '@/components/cv/PropertiesPanel';
 import { ATSScorePanel } from '@/components/cv/ATSScorePanel';
+import { CommandPalette, useCommandPalette } from '@/components/cv/CommandPalette';
 import { CVProvider, useCV } from '@/contexts/CVContext';
 import { PanelErrorBoundary } from '@/components/PanelErrorBoundary';
 import { useState } from 'react';
@@ -14,12 +15,19 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { exportPDF } from '@/utils/exportUtils';
 
 function BuilderLayout() {
   const { state, dispatch } = useCV();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+
+  const handleExportPDF = async () => {
+    const el = document.getElementById('cv-canvas-paper');
+    if (el) await exportPDF(el, `${state.cv.name || 'cv'}.pdf`);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -114,6 +122,12 @@ function BuilderLayout() {
           </div>
         ) : null}
       </DragOverlay>
+
+      <CommandPalette
+        open={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+        onExportPDF={handleExportPDF}
+      />
     </DndContext>
   );
 }

@@ -10,12 +10,19 @@ export type SectionType =
   | 'custom'
   | 'spacer';
 
+export interface CVSectionStyle {
+  fontSize?: number;   // px, overrides template default
+  spacing?: number;    // margin-bottom px
+}
+
 export interface CVSection {
   id: string;
   type: SectionType;
   title: string;
   content: SectionContent;
   locked?: boolean;
+  hidden?: boolean;
+  style?: CVSectionStyle;
 }
 
 export interface PersonalInfoContent {
