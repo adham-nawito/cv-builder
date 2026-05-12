@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid';
 import { Trash2, Copy, Lock, Unlock, GripVertical, Plus } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 
 type Template = TemplateType;
 
@@ -158,7 +158,7 @@ const issueOutline: Record<'critical' | 'warning', string> = {
   warning:  'ring-1 ring-warning/60',
 };
 
-export function CVSectionComponent({ section, isPreview }: Props) {
+export const CVSectionComponent = memo(function CVSectionComponent({ section, isPreview }: Props) {
   const { state, selectSection, deleteSection, duplicateSection, dispatch, atsScore } = useCV();
   const isSelected = state.selectedSectionId === section.id;
   const issue = isPreview ? null : atsScore.sectionIssues[section.type];
@@ -225,7 +225,7 @@ export function CVSectionComponent({ section, isPreview }: Props) {
       <SectionRenderer section={section} isPreview={isPreview} template={state.cv.template} darkMode={state.isDarkMode} />
     </div>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // SectionRenderer — dispatches to the right renderer

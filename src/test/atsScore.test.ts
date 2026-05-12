@@ -117,9 +117,9 @@ describe('calculateATSScore', () => {
     expect(['A+', 'A', 'B']).toContain(result.grade);
   });
 
-  it('maxScore is always 100', () => {
+  it('maxScore is always 105', () => {
     const result = calculateATSScore(fullCV);
-    expect(result.maxScore).toBe(100);
+    expect(result.maxScore).toBe(105);
   });
 
   it('critical tips for empty CV include personal info and experience', () => {
@@ -145,5 +145,112 @@ describe('calculateATSScore', () => {
   it('tips have no negative points', () => {
     const result = calculateATSScore(minimalCV);
     result.tips.forEach(t => expect(t.points).toBeGreaterThan(0));
+  });
+
+  it('all tip ids are unique', () => {
+    const result = calculateATSScore(minimalCV);
+    const ids = result.tips.map(t => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('percentage is between 0 and 100', () => {
+    const empty = calculateATSScore(minimalCV);
+    const full  = calculateATSScore(fullCV);
+    expect(empty.percentage).toBeGreaterThanOrEqual(0);
+    expect(empty.percentage).toBeLessThanOrEqual(100);
+    expect(full.percentage).toBeGreaterThanOrEqual(0);
+    expect(full.percentage).toBeLessThanOrEqual(100);
+  });
+
+  it('total never exceeds maxScore', () => {
+    const result = calculateATSScore(fullCV);
+    expect(result.total).toBeLessThanOrEqual(result.maxScore);
+  });
+
+  it('breakdown includes a Languages category with max 5', () => {
+    const result = calculateATSScore(fullCV);
+    const langBreakdown = result.breakdown.find(b => b.category === 'Languages');
+    expect(langBreakdown).toBeDefined();
+    expect(langBreakdown?.max).toBe(5);
+  });
+
+  it('suggests adding languages section when missing', () => {
+    const result = calculateATSScore(minimalCV);
+    const tip = result.tips.find(t => t.message.includes('Languages section'));
+    expect(tip).toBeDefined();
+    expect(tip?.category).toBe('suggestion');
+  });
+
+  it('scores full languages credit when section has items with proficiency', () => {
+    const cvWithLangs: CVData = {
+      ...minimalCV,
+      id: 'test-langs',
+      sections: [{
+        id: 'l1',
+        type: 'languages',
+        title: 'Languages',
+        content: { items: [{ id: 'li1', language: 'English', proficiency: 'Native' }] },
+      }],
+    };
+    const result = calculateATSScore(cvWithLangs);
+    const langBreakdown = result.breakdown.find(b => b.category === 'Languages');
+    expect(langBreakdown?.score).toBe(5);
+  });
+
+  it('sectionIssues marks languages null when section is present and valid', () => {
+    const cvWithLangs: CVData = {
+      ...minimalCV,
+      id: 'test-langs-issues',
+      sections: [{
+        id: 'l1',
+        type: 'languages',
+        title: 'Languages',
+        content: { items: [{ id: 'li1', language: 'Arabic', proficiency: 'Native' }] },
+      }],
+    };
+    const result = calculateATSScore(cvWithLangs);
+    expect(result.sectionIssues['languages']).toBeNull();
+  });
+
+  it('sectionIssues for experience is null when experience section is absent', () => {
+    const result = calculateATSScore(minimalCV);
+    // section is missing so no canvas highlight, but the key is still set to null
+    expect(result.sectionIssues['experience']).toBeNull();
+  });
+
+  it('sectionIssues marks personal-info null when fully filled', () => {
+    const result = calculateATSScore(fullCV);
+    expect(result.sectionIssues['personal-info']).toBeNull();
+  });
+
+  it('personal-info critical when email is missing', () => {
+    const cv: CVData = {
+      ...minimalCV,
+      id: 'test-pi',
+      sections: [{
+        id: 'pi1',
+        type: 'personal-info',
+        title: 'Personal Info',
+        content: { fullName: 'Jane Doe', jobTitle: 'Engineer', email: '', phone: '', location: '', linkedin: '' },
+      }],
+    };
+    const result = calculateATSScore(cv);
+    expect(result.sectionIssues['personal-info']).toBe('critical');
+  });
+
+  it('summary warning when text is too short', () => {
+    const cv: CVData = {
+      ...minimalCV,
+      id: 'test-sum',
+      sections: [{
+        id: 'sm1',
+        type: 'summary',
+        title: 'Summary',
+        content: { text: 'Short summary.' },
+      }],
+    };
+    const result = calculateATSScore(cv);
+    const tip = result.tips.find(t => t.message.includes('too short'));
+    expect(tip).toBeDefined();
   });
 });
