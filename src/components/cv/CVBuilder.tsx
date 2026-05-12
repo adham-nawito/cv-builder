@@ -4,9 +4,12 @@ import { CVCanvas } from '@/components/cv/CVCanvas';
 import { PropertiesPanel } from '@/components/cv/PropertiesPanel';
 import { ATSScorePanel } from '@/components/cv/ATSScorePanel';
 import { CommandPalette, useCommandPalette } from '@/components/cv/CommandPalette';
+import { RecoveryPrompt } from '@/components/cv/RecoveryPrompt';
 import { CVProvider, useCV } from '@/contexts/CVContext';
 import { PanelErrorBoundary } from '@/components/PanelErrorBoundary';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { hasUnsavedSession, loadSession } from '@/lib/storage';
+import type { CVData } from '@/types/cv';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, KeyboardSensor,
@@ -25,6 +28,13 @@ function BuilderLayout() {
   const [announcement, setAnnouncement] = useState('');
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [recoverySession, setRecoverySession] = useState<CVData | null>(null);
+
+  useEffect(() => {
+    if (hasUnsavedSession()) {
+      setRecoverySession(loadSession());
+    }
+  }, []);
 
   const handleExportConfirm = async (filename: string) => {
     setShowExportDialog(false);
@@ -138,6 +148,17 @@ function BuilderLayout() {
           defaultName={state.cv.name || 'cv'}
           onConfirm={handleExportConfirm}
           onCancel={() => setShowExportDialog(false)}
+        />
+      )}
+
+      {recoverySession && (
+        <RecoveryPrompt
+          session={recoverySession}
+          onRestore={() => {
+            dispatch({ type: 'LOAD_CV', payload: recoverySession });
+            setRecoverySession(null);
+          }}
+          onDiscard={() => setRecoverySession(null)}
         />
       )}
     </DndContext>

@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useCallback, useReducer, useEffect, useRef, useMemo } from 'react';
+import React, { createContext, useContext, useCallback, useReducer, useEffect, useRef, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import type { CVData, CVSection, SectionType, SectionContent } from '@/types/cv';
 export type { CVSectionStyle } from '@/types/cv';
 import { createSampleCV } from '@/utils/sampleData';
 import { arrayMove } from '@dnd-kit/sortable';
+import { saveCV as persistCV, saveSession } from '@/lib/storage';
 
 // ---------------------------------------------------------------------------
 // State & Action types
@@ -238,6 +239,8 @@ interface CVContextValue {
   selectSection: (id: string | null) => void;
   selectedSection: CVSection | null;
   setSectionStyle: (id: string, style: import('@/types/cv').CVSectionStyle) => void;
+  isDirty: boolean;
+  markSaved: () => void;
 }
 
 const CVContext = createContext<CVContextValue | null>(null);
@@ -268,13 +271,26 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
   // saveCVRef lets the keyboard shortcut call the save function without a stale closure
   const saveCVRef = useRef<(() => void) | null>(null);
 
-  // Persist CV
+  // Dirty-state: true whenever cv changes and hasn't been explicitly saved to the named list
+  const [isDirty, setIsDirty] = useState(false);
+  const markSaved = useCallback(() => setIsDirty(false), []);
+
+  // Session auto-save (debounced 500ms) + dirty flag
   useEffect(() => {
-    localStorage.setItem('cvforge_current', JSON.stringify(state.cv));
-    saveCVRef.current = () => {
-      localStorage.setItem('cvforge_current', JSON.stringify(state.cv));
-    };
+    setIsDirty(true);
+    const timer = setTimeout(() => {
+      saveSession(state.cv);
+    }, 500);
+    return () => clearTimeout(timer);
   }, [state.cv]);
+
+  // Keep saveCVRef fresh so Ctrl+S can call persistCV directly
+  const cvRef = useRef(state.cv);
+  cvRef.current = state.cv;
+  saveCVRef.current = () => {
+    persistCV(cvRef.current);
+    setIsDirty(false);
+  };
 
   // Dark mode class
   useEffect(() => {
@@ -353,7 +369,8 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
   const value = useMemo<CVContextValue>(() => ({
     state, dispatch, addSection, updateSectionContent,
     deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle,
-  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle]);
+    isDirty, markSaved,
+  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle, isDirty, markSaved]);
 
   return (
     <CVContext.Provider value={value}>

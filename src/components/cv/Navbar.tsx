@@ -4,6 +4,7 @@ import { generateHTML } from '@/utils/generateHTML';
 import { parseHTMLToCV } from '@/utils/parseHTML';
 import { exportPDF, exportHTML } from '@/utils/exportUtils';
 import { exportDOCX } from '@/utils/exportDocx';
+import { saveCV } from '@/lib/storage';
 import { parseLinkedInPDF } from '@/utils/linkedinParser';
 import { SaveLoadManager } from './SaveLoadManager';
 import { ExportDialog } from './ExportDialog';
@@ -27,7 +28,7 @@ const TEMPLATES: { key: TemplateType; label: string; desc: string; accent: strin
 ];
 
 export function Navbar() {
-  const { state, dispatch } = useCV();
+  const { state, dispatch, isDirty, markSaved } = useCV();
   const { t, locale, setLocale, locales } = useI18n();
   const [showExport, setShowExport] = useState(false);
   const [showCode, setShowCode] = useState(false);
@@ -126,11 +127,8 @@ export function Navbar() {
   }, [dispatch]);
 
   const saveCVList = () => {
-    const list = JSON.parse(localStorage.getItem('cvforge_list') || '[]');
-    const existing = list.findIndex((c: any) => c.id === state.cv.id);
-    if (existing >= 0) list[existing] = state.cv;
-    else list.push(state.cv);
-    localStorage.setItem('cvforge_list', JSON.stringify(list));
+    saveCV(state.cv);
+    markSaved();
   };
 
   const currentLocale = locales.find(l => l.code === locale);
@@ -144,6 +142,13 @@ export function Navbar() {
         <div className="flex items-center gap-2 mr-4">
           <FileText className="w-5 h-5 text-primary" />
           <span className="font-bold text-lg tracking-tight">CVForge</span>
+          {isDirty && (
+            <span
+              className="w-2 h-2 rounded-full bg-amber-400 shrink-0"
+              title="Unsaved changes"
+              aria-label="Unsaved changes"
+            />
+          )}
         </div>
 
         {/* Desktop Actions */}
