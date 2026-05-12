@@ -172,8 +172,45 @@
   }
 }
 
-/* Print styles for PDF export */
+/* Print styles */
 @media print {
-  body { margin: 0; padding: 0; }
-  .cv-paper { box-shadow: none; }
+  /* Hide all editor chrome */
+  nav,
+  .cv-canvas-wrapper > div > :not(#cv-canvas-paper),
+  [aria-label="CV canvas"] > div > :not(main),
+  .cv-section .absolute,
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  /* Let the paper fill the page */
+  .cv-paper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Section page-break hints */
+  .cv-section {
+    break-inside: avoid;
+  }
+
+  /* Never break inside personal-info header */
+  .cv-section:first-child {
+    break-after: avoid;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
 }

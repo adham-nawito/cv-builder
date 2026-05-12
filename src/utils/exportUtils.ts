@@ -10,17 +10,36 @@ export async function exportPDF(element: HTMLElement, filename: string = 'cv.pdf
     backgroundColor: '#ffffff',
   });
 
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
-  const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-  const width = imgWidth * ratio;
-  const height = imgHeight * ratio;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();   // 210 mm
+  const pageH = pdf.internal.pageSize.getHeight();  // 297 mm
 
-  pdf.addImage(imgData, 'PNG', (pdfWidth - width) / 2, 0, width, height);
+  // Map canvas width → page width; compute total rendered height in mm
+  const imgW = pageW;
+  const imgH = (canvas.height * pageW) / canvas.width;
+
+  let yMm = 0;
+  let pageIndex = 0;
+
+  while (yMm < imgH) {
+    const sliceHmm = Math.min(pageH, imgH - yMm);
+    // Convert mm slice bounds back to canvas pixels
+    const srcY = Math.round((yMm / imgH) * canvas.height);
+    const srcH = Math.round((sliceHmm / imgH) * canvas.height);
+
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = srcH;
+    const ctx = sliceCanvas.getContext('2d');
+    ctx?.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+    if (pageIndex > 0) pdf.addPage();
+    pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgW, sliceHmm);
+
+    yMm += pageH;
+    pageIndex++;
+  }
+
   pdf.save(filename);
 }
 

@@ -16,6 +16,7 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { exportPDF } from '@/utils/exportUtils';
+import { ExportDialog } from '@/components/cv/ExportDialog';
 
 function BuilderLayout() {
   const { state, dispatch } = useCV();
@@ -23,10 +24,12 @@ function BuilderLayout() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
-  const handleExportPDF = async () => {
+  const handleExportConfirm = async (filename: string) => {
+    setShowExportDialog(false);
     const el = document.getElementById('cv-canvas-paper');
-    if (el) await exportPDF(el, `${state.cv.name || 'cv'}.pdf`);
+    if (el) await exportPDF(el, filename);
   };
 
   const sensors = useSensors(
@@ -126,8 +129,17 @@ function BuilderLayout() {
       <CommandPalette
         open={cmdOpen}
         onClose={() => setCmdOpen(false)}
-        onExportPDF={handleExportPDF}
+        onExportPDF={() => setShowExportDialog(true)}
       />
+
+      {showExportDialog && (
+        <ExportDialog
+          format="PDF"
+          defaultName={state.cv.name || 'cv'}
+          onConfirm={handleExportConfirm}
+          onCancel={() => setShowExportDialog(false)}
+        />
+      )}
     </DndContext>
   );
 }

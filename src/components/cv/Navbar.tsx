@@ -6,6 +6,7 @@ import { exportPDF, exportHTML } from '@/utils/exportUtils';
 import { exportDOCX } from '@/utils/exportDocx';
 import { parseLinkedInPDF } from '@/utils/linkedinParser';
 import { SaveLoadManager } from './SaveLoadManager';
+import { ExportDialog } from './ExportDialog';
 import { useState, useCallback, useRef } from 'react';
 import type { CVData, TemplateType } from '@/types/cv';
 import { v4 as uuid } from 'uuid';
@@ -37,26 +38,29 @@ export function Navbar() {
   const [showManager, setShowManager] = useState(false);
   const [editableHTML, setEditableHTML] = useState('');
   const [linkedinLoading, setLinkedinLoading] = useState(false);
+  const [exportPending, setExportPending] = useState<'PDF' | 'DOCX' | 'HTML' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const linkedinInputRef = useRef<HTMLInputElement>(null);
 
   const html = generateHTML(state.cv);
+  const cvBaseName = state.cv.name || 'cv';
 
-  const handleExportPDF = async () => {
-    const el = document.getElementById('cv-canvas-paper');
-    if (el) await exportPDF(el, `${state.cv.name || 'cv'}.pdf`);
+  const handleExportConfirm = async (filename: string) => {
+    setExportPending(null);
     setShowExport(false);
+    if (filename.endsWith('.pdf')) {
+      const el = document.getElementById('cv-canvas-paper');
+      if (el) await exportPDF(el, filename);
+    } else if (filename.endsWith('.html') || filename.endsWith('.htm')) {
+      exportHTML(html, filename);
+    } else if (filename.endsWith('.docx')) {
+      await exportDOCX(state.cv, filename);
+    }
   };
 
-  const handleExportHTML = () => {
-    exportHTML(html, `${state.cv.name || 'cv'}.html`);
-    setShowExport(false);
-  };
-
-  const handleExportDOCX = async () => {
-    await exportDOCX(state.cv, `${state.cv.name || 'cv'}.docx`);
-    setShowExport(false);
-  };
+  const handleExportPDF  = () => { setExportPending('PDF');  setShowExport(false); };
+  const handleExportHTML = () => { setExportPending('HTML'); setShowExport(false); };
+  const handleExportDOCX = () => { setExportPending('DOCX'); setShowExport(false); };
 
   const handleOpenCode = () => {
     setEditableHTML(html);
@@ -321,6 +325,15 @@ export function Navbar() {
       )}
 
       <SaveLoadManager open={showManager} onClose={() => setShowManager(false)} />
+
+      {exportPending && (
+        <ExportDialog
+          format={exportPending}
+          defaultName={cvBaseName}
+          onConfirm={handleExportConfirm}
+          onCancel={() => setExportPending(null)}
+        />
+      )}
     </>
   );
 }
