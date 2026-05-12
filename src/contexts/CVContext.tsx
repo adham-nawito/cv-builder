@@ -38,6 +38,7 @@ type Action =
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'TOGGLE_DARK_MODE' }
+  | { type: 'SET_DARK_MODE'; payload: boolean }
   | { type: 'TOGGLE_PREVIEW' }
   | { type: 'NEW_CV' }
   | { type: 'LOAD_CV'; payload: CVData };
@@ -209,6 +210,9 @@ function reducer(state: CVState, action: Action): CVState {
     case 'TOGGLE_DARK_MODE':
       return { ...state, isDarkMode: !state.isDarkMode };
 
+    case 'SET_DARK_MODE':
+      return { ...state, isDarkMode: action.payload };
+
     case 'TOGGLE_PREVIEW':
       return { ...state, isPreviewMode: !state.isPreviewMode, selectedSectionId: null };
 
@@ -256,12 +260,18 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
     return createSampleCV();
   }, []);
 
+  const initialDarkMode = useMemo(() => {
+    const saved = localStorage.getItem('cvforge_dark_mode');
+    if (saved !== null) return saved === 'true';
+    return globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+  }, []);
+
   const [state, dispatch] = useReducer(reducer, {
     cv: loadedCV,
     selectedSectionId: null,
     history: [loadedCV],
     historyIndex: 0,
-    isDarkMode: false,
+    isDarkMode: initialDarkMode,
     isPreviewMode: false,
   });
 
@@ -303,10 +313,22 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
     setIsDirty(false);
   };
 
-  // Dark mode class
+  // Dark mode class (always); persistence happens only on explicit toggle via Navbar
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.isDarkMode);
   }, [state.isDarkMode]);
+
+  // Mirror system preference changes when user hasn't made an explicit choice
+  useEffect(() => {
+    const mq = globalThis.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      if (localStorage.getItem('cvforge_dark_mode') === null) {
+        dispatch({ type: 'SET_DARK_MODE', payload: e.matches });
+      }
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // Keyboard shortcuts — registered once, uses ref for fresh selected id
   useEffect(() => {

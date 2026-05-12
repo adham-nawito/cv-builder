@@ -7,10 +7,10 @@ import { CommandPalette, useCommandPalette } from '@/components/cv/CommandPalett
 import { RecoveryPrompt } from '@/components/cv/RecoveryPrompt';
 import { CVProvider, useCV } from '@/contexts/CVContext';
 import { PanelErrorBoundary } from '@/components/PanelErrorBoundary';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { hasUnsavedSession, loadSession } from '@/lib/storage';
 import type { CVData } from '@/types/cv';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react';
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, KeyboardSensor,
   DragOverlay, useSensor, useSensors,
@@ -35,6 +35,19 @@ function BuilderLayout() {
       setRecoverySession(loadSession());
     }
   }, []);
+
+  // Escape exits preview mode
+  const exitPreview = useCallback(() => {
+    if (state.isPreviewMode) dispatch({ type: 'TOGGLE_PREVIEW' });
+  }, [state.isPreviewMode, dispatch]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') exitPreview();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [exitPreview]);
 
   const handleExportConfirm = async (filename: string) => {
     setShowExportDialog(false);
@@ -86,19 +99,34 @@ function BuilderLayout() {
         {announcement}
       </div>
 
-      <div className="h-screen flex flex-col overflow-hidden">
-        <Navbar />
-        <div className="flex-1 flex overflow-hidden relative">
-          {/* Mobile sidebar toggle */}
+      {state.isPreviewMode ? (
+        /* ── Full-screen preview ── */
+        <div className="h-screen overflow-auto bg-canvas-bg relative">
+          <PanelErrorBoundary panelName="Canvas">
+            <CVCanvas />
+          </PanelErrorBoundary>
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="md:hidden absolute top-2 left-2 z-30 p-2 bg-card border border-border rounded-md shadow-sm"
+            onClick={exitPreview}
+            title="Exit preview (Escape)"
+            className="fixed top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border shadow-lg text-sm font-medium hover:bg-accent transition-colors"
           >
-            {sidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+            <X className="w-4 h-4" /> Exit Preview
           </button>
+        </div>
+      ) : (
+        /* ── Editor layout ── */
+        <div className="h-screen flex flex-col overflow-hidden">
+          <Navbar />
+          <div className="flex-1 flex overflow-hidden relative">
+            {/* Mobile sidebar toggle */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden absolute top-2 left-2 z-30 p-2 bg-card border border-border rounded-md shadow-sm"
+            >
+              {sidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+            </button>
 
-          {/* Left sidebar */}
-          {!state.isPreviewMode && (
+            {/* Left sidebar */}
             <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block absolute md:relative z-20 h-full`}>
               <div className="flex flex-col h-full">
                 <div className="flex-1 overflow-auto">
@@ -111,21 +139,19 @@ function BuilderLayout() {
                 </PanelErrorBoundary>
               </div>
             </div>
-          )}
 
-          {/* Canvas */}
-          <PanelErrorBoundary panelName="Canvas">
-            <CVCanvas />
-          </PanelErrorBoundary>
+            {/* Canvas */}
+            <PanelErrorBoundary panelName="Canvas">
+              <CVCanvas />
+            </PanelErrorBoundary>
 
-          {/* Right sidebar */}
-          {!state.isPreviewMode && (
+            {/* Right sidebar */}
             <PanelErrorBoundary panelName="Properties">
               <PropertiesPanel />
             </PanelErrorBoundary>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Floating ghost shown while reordering sections */}
       <DragOverlay modifiers={[restrictToWindowEdges]}>

@@ -2,8 +2,25 @@ import { useCV } from '@/contexts/CVContext';
 import { CVSectionComponent } from './CVSectionComponent.tsx';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDndContext } from '@dnd-kit/core';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TemplateType } from '@/types/cv';
+
+const PAPER_WIDTH_PX = 794; // 210mm at 96dpi
+
+function useCanvasScale(wrapperRef: React.RefObject<HTMLDivElement | null>) {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const available = entry.contentRect.width - 48; // 24px padding each side
+      setScale(available < PAPER_WIDTH_PX ? available / PAPER_WIDTH_PX : 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [wrapperRef]);
+  return scale;
+}
 
 const TEMPLATE_FONTS: Record<TemplateType, string> = {
   classic:   "'Helvetica Neue', Arial, sans-serif",
@@ -15,9 +32,11 @@ const TEMPLATE_FONTS: Record<TemplateType, string> = {
 
 export function CVCanvas() {
   const { state, selectSection } = useCV();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const { active } = useDndContext();
   const isDragging = active !== null;
+  const scale = useCanvasScale(wrapperRef);
 
   // Deselect on Escape, or clicking inside the canvas area but outside any section
   useEffect(() => {
@@ -40,8 +59,16 @@ export function CVCanvas() {
   }, [selectSection]);
 
   return (
-    <section aria-label="CV canvas" className="flex-1 cv-canvas-wrapper overflow-auto">
-      <div className="w-full flex justify-center py-6 px-4">
+    <section
+      ref={wrapperRef}
+      aria-label="CV canvas"
+      className="flex-1 cv-canvas-wrapper overflow-auto"
+      style={{ touchAction: scale < 1 ? 'pan-y' : undefined }}
+    >
+      <div
+        className="w-full flex justify-center py-6 px-4"
+        style={scale < 1 ? { paddingTop: '1.5rem', paddingBottom: `${PAPER_WIDTH_PX * (1 - scale) * 0.5}px` } : undefined}
+      >
         <main
           ref={canvasRef}
           id="cv-canvas-paper"
@@ -52,6 +79,7 @@ export function CVCanvas() {
             minHeight: '297mm',
             maxWidth: '100%',
             fontFamily: TEMPLATE_FONTS[state.cv.template],
+            ...(scale < 1 ? { transform: `scale(${scale})`, transformOrigin: 'top center' } : {}),
           }}
         >
           {/* Alignment guides shown while reordering */}

@@ -131,6 +131,11 @@ export function Navbar() {
     markSaved();
   };
 
+  const toggleDarkMode = () => {
+    dispatch({ type: 'TOGGLE_DARK_MODE' });
+    localStorage.setItem('cvforge_dark_mode', String(!state.isDarkMode));
+  };
+
   const currentLocale = locales.find(l => l.code === locale);
 
   return (
@@ -256,7 +261,7 @@ export function Navbar() {
           <button onClick={() => dispatch({ type: 'REDO' })} className="toolbar-btn" title="Redo (Ctrl+Shift+Z)">
             <Redo2 className="w-4 h-4" />
           </button>
-          <button onClick={() => dispatch({ type: 'TOGGLE_DARK_MODE' })} className="toolbar-btn">
+          <button onClick={toggleDarkMode} className="toolbar-btn">
             {state.isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
@@ -282,7 +287,7 @@ export function Navbar() {
           </button>
           <button onClick={() => dispatch({ type: 'UNDO' })} className="toolbar-btn"><Undo2 className="w-4 h-4" /></button>
           <button onClick={() => dispatch({ type: 'REDO' })} className="toolbar-btn"><Redo2 className="w-4 h-4" /></button>
-          <button onClick={() => dispatch({ type: 'TOGGLE_DARK_MODE' })} className="toolbar-btn">
+          <button onClick={toggleDarkMode} className="toolbar-btn">
             {state.isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
           {/* Language switcher in mobile */}

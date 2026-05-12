@@ -93,6 +93,17 @@ export function createSampleCV(): CVData {
           ],
         },
       },
+      {
+        id: uuid(),
+        type: 'languages',
+        title: 'Languages',
+        content: {
+          items: [
+            { id: uuid(), language: 'English', proficiency: 'Native' },
+            { id: uuid(), language: 'Spanish', proficiency: 'Professional' },
+          ],
+        },
+      },
     ],
   };
 }

@@ -1,4 +1,4 @@
-import type { CVData, PersonalInfoContent, SummaryContent, ExperienceContent, SkillsContent, EducationContent } from '@/types/cv';
+import type { CVData, PersonalInfoContent, SummaryContent, ExperienceContent, SkillsContent, EducationContent, LanguagesContent } from '@/types/cv';
 
 export interface ATSTip {
   id: string;
@@ -160,6 +160,21 @@ export function calculateATSScore(cv: CVData): ATSScore {
   }
   breakdown.push({ category: 'Skills', score: skillScore, max: 15 });
 
+  // --- Languages (5 pts) ---
+  let langScore = 0;
+  const langSection = cv.sections.find(s => s.type === 'languages');
+  if (langSection) {
+    const items = (langSection.content as LanguagesContent).items || [];
+    if (items.length >= 1 && items.some(i => i.language && i.proficiency)) {
+      langScore += 5;
+    } else {
+      tips.push({ id: `t${tipId++}`, category: 'suggestion', message: 'Add spoken languages with proficiency levels', points: 5 });
+    }
+  } else {
+    tips.push({ id: `t${tipId++}`, category: 'suggestion', message: 'Add a Languages section to stand out in multilingual roles', points: 5 });
+  }
+  breakdown.push({ category: 'Languages', score: langScore, max: 5 });
+
   // --- Structure & Formatting (15 pts) ---
   let structScore = 0;
   const sectionCount = cv.sections.length;
@@ -231,6 +246,13 @@ export function calculateATSScore(cv: CVData): ATSScore {
   if (skillIssues.some(t => t.category === 'critical')) sectionIssues['skills'] = 'critical';
   else if (skillIssues.some(t => t.category === 'warning')) sectionIssues['skills'] = 'warning';
   else sectionIssues['skills'] = null;
+
+  const langIssues = filteredTips.filter(t =>
+    ['Add spoken languages', 'Add a Languages section'].some(m => t.message.startsWith(m))
+  );
+  if (langIssues.some(t => t.category === 'critical')) sectionIssues['languages'] = 'critical';
+  else if (langIssues.some(t => t.category === 'warning')) sectionIssues['languages'] = 'warning';
+  else sectionIssues['languages'] = null;
 
   void sectionTypeForTip; // unused — kept for clarity
 

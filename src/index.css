@@ -113,15 +113,21 @@
     @apply bg-canvas flex items-start justify-center overflow-auto p-6;
   }
   .cv-paper {
-    @apply bg-paper shadow-paper prose prose-sm max-w-none;
+    @apply shadow-paper prose prose-sm max-w-none;
     width: 210mm;
     min-height: 297mm;
     padding: 20mm;
     position: relative;
+    background-color: #ffffff;
+    color: #111111;
     /* Reset prose defaults that fight the template styles */
     --tw-prose-body: inherit;
     --tw-prose-headings: inherit;
     --tw-prose-links: inherit;
+  }
+  .dark .cv-paper {
+    background-color: hsl(var(--canvas-paper));
+    color: #e5e7eb;
   }
   .cv-section {
     @apply relative rounded-sm transition-all duration-150;
@@ -207,7 +213,7 @@
     background: white;
   }
 
-  /* Let the paper fill the page */
+  /* Let the paper fill the page — force light theme regardless of dark mode */
   .cv-paper {
     width: 100% !important;
     max-width: 100% !important;
@@ -215,6 +221,8 @@
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
+    background-color: #ffffff !important;
+    color: #111111 !important;
   }
 
   /* Section page-break hints */

@@ -17,77 +17,78 @@ type Template = TemplateType;
 // Style helpers
 // ---------------------------------------------------------------------------
 
-function getHeadingStyle(template: Template) {
+function getHeadingStyle(template: Template, dark: boolean) {
   switch (template) {
     case 'modern':
       return {
         className: 'text-sm font-bold uppercase tracking-wider mb-2 pb-1',
-        style: { borderBottom: '3px solid #111', color: '#111', letterSpacing: '0.15em' } as React.CSSProperties,
+        style: { borderBottom: `3px solid ${dark ? '#e5e7eb' : '#111'}`, color: dark ? '#e5e7eb' : '#111', letterSpacing: '0.15em' } as React.CSSProperties,
       };
     case 'minimal':
       return {
         className: 'text-xs font-medium uppercase tracking-widest mb-3 pb-1',
-        style: { borderBottom: '1px solid #ccc', color: '#888' } as React.CSSProperties,
+        style: { borderBottom: `1px solid ${dark ? '#4b5563' : '#ccc'}`, color: dark ? '#9ca3af' : '#888' } as React.CSSProperties,
       };
     case 'executive':
       return {
         className: 'text-sm font-semibold uppercase tracking-wider mb-2 pb-2',
-        style: { borderBottom: '1px solid #8b6914', color: '#6b4f10', letterSpacing: '0.12em' } as React.CSSProperties,
+        style: { borderBottom: '1px solid #8b6914', color: dark ? '#d4a84b' : '#6b4f10', letterSpacing: '0.12em' } as React.CSSProperties,
       };
     case 'creative':
       return {
         className: 'text-base font-black mb-2 pb-1',
-        style: { borderBottom: '4px solid #e11d48', color: '#be123c', borderImage: 'linear-gradient(90deg, #e11d48, #7c3aed) 1' } as React.CSSProperties,
+        style: { borderBottom: '4px solid #e11d48', color: dark ? '#fb7185' : '#be123c', borderImage: 'linear-gradient(90deg, #e11d48, #7c3aed) 1' } as React.CSSProperties,
       };
     default:
       return {
         className: 'text-sm font-bold uppercase tracking-wider mb-2 pb-1',
-        style: { borderBottom: '2px solid #2563eb', color: '#1e40af' } as React.CSSProperties,
+        style: { borderBottom: '2px solid #2563eb', color: dark ? '#60a5fa' : '#1e40af' } as React.CSSProperties,
       };
   }
 }
 
-function getHeaderStyle(template: Template) {
+function getHeaderStyle(template: Template, dark: boolean) {
   switch (template) {
     case 'modern':
       return {
-        wrapper: { background: '#111', color: '#fff', padding: '24px', marginBottom: '16px', borderRadius: '0' } as React.CSSProperties,
+        wrapper: { background: dark ? '#1f2937' : '#111', color: '#fff', padding: '24px', marginBottom: '16px', borderRadius: '0' } as React.CSSProperties,
         name: { color: '#fff', fontSize: '28px' } as React.CSSProperties,
         subtitle: { color: '#ccc' } as React.CSSProperties,
         contact: { color: '#999' } as React.CSSProperties,
       };
     case 'minimal':
       return {
-        wrapper: { borderBottom: '1px solid #ddd', paddingBottom: '12px', marginBottom: '16px' } as React.CSSProperties,
-        name: { color: '#333', fontWeight: 400, fontSize: '24px', letterSpacing: '0.1em' } as React.CSSProperties,
-        subtitle: { color: '#888' } as React.CSSProperties,
-        contact: { color: '#999' } as React.CSSProperties,
+        wrapper: { borderBottom: `1px solid ${dark ? '#374151' : '#ddd'}`, paddingBottom: '12px', marginBottom: '16px' } as React.CSSProperties,
+        name: { color: dark ? '#f3f4f6' : '#333', fontWeight: 400, fontSize: '24px', letterSpacing: '0.1em' } as React.CSSProperties,
+        subtitle: { color: dark ? '#9ca3af' : '#888' } as React.CSSProperties,
+        contact: { color: dark ? '#6b7280' : '#999' } as React.CSSProperties,
       };
     case 'executive':
       return {
         wrapper: { borderBottom: '2px solid #8b6914', paddingBottom: '16px', marginBottom: '20px', textAlign: 'left' as const } as React.CSSProperties,
-        name: { color: '#1a1a1a', fontSize: '30px', fontWeight: 700, letterSpacing: '0.04em' } as React.CSSProperties,
-        subtitle: { color: '#6b4f10', fontWeight: 500, fontSize: '16px' } as React.CSSProperties,
-        contact: { color: '#555' } as React.CSSProperties,
+        name: { color: dark ? '#f9fafb' : '#1a1a1a', fontSize: '30px', fontWeight: 700, letterSpacing: '0.04em' } as React.CSSProperties,
+        subtitle: { color: dark ? '#d4a84b' : '#6b4f10', fontWeight: 500, fontSize: '16px' } as React.CSSProperties,
+        contact: { color: dark ? '#9ca3af' : '#555' } as React.CSSProperties,
       };
     case 'creative':
       return {
-        wrapper: { background: 'linear-gradient(135deg, #fdf2f8, #f5f3ff)', padding: '24px', marginBottom: '16px', borderRadius: '12px', borderLeft: '5px solid #e11d48' } as React.CSSProperties,
-        name: { color: '#1a1a1a', fontSize: '32px', fontWeight: 900 } as React.CSSProperties,
-        subtitle: { color: '#7c3aed', fontWeight: 600, fontSize: '15px' } as React.CSSProperties,
-        contact: { color: '#666' } as React.CSSProperties,
+        wrapper: { background: dark ? 'linear-gradient(135deg, #1e1b2e, #1a1025)' : 'linear-gradient(135deg, #fdf2f8, #f5f3ff)', padding: '24px', marginBottom: '16px', borderRadius: '12px', borderLeft: '5px solid #e11d48' } as React.CSSProperties,
+        name: { color: dark ? '#f9fafb' : '#1a1a1a', fontSize: '32px', fontWeight: 900 } as React.CSSProperties,
+        subtitle: { color: dark ? '#a78bfa' : '#7c3aed', fontWeight: 600, fontSize: '15px' } as React.CSSProperties,
+        contact: { color: dark ? '#9ca3af' : '#666' } as React.CSSProperties,
       };
     default:
       return {
         wrapper: { borderBottom: '2px solid #2563eb', paddingBottom: '12px', marginBottom: '16px' } as React.CSSProperties,
-        name: { color: '#111' } as React.CSSProperties,
-        subtitle: { color: '#444' } as React.CSSProperties,
-        contact: { color: '#666' } as React.CSSProperties,
+        name: { color: dark ? '#f9fafb' : '#111' } as React.CSSProperties,
+        subtitle: { color: dark ? '#d1d5db' : '#444' } as React.CSSProperties,
+        contact: { color: dark ? '#9ca3af' : '#666' } as React.CSSProperties,
       };
   }
 }
 
-function getBodyTextColor(template: Template): string {
+function getBodyTextColor(template: Template, dark: boolean): string {
+  if (dark) return '#e5e7eb';
   switch (template) {
     case 'modern': return '#222';
     case 'minimal': return '#555';
@@ -221,7 +222,7 @@ export function CVSectionComponent({ section, isPreview }: Props) {
         </div>
       )}
 
-      <SectionRenderer section={section} isPreview={isPreview} template={state.cv.template} />
+      <SectionRenderer section={section} isPreview={isPreview} template={state.cv.template} darkMode={state.isDarkMode} />
     </div>
   );
 }
@@ -234,9 +235,10 @@ interface RendererProps {
   readonly section: CVSection;
   readonly isPreview?: boolean;
   readonly template: Template;
+  readonly darkMode: boolean;
 }
 
-function SectionRenderer({ section, isPreview, template }: RendererProps) {
+function SectionRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const hasStyle = section.style?.fontSize || section.style?.spacing;
   const wrapperStyle: React.CSSProperties = hasStyle ? {
     ...(section.style?.fontSize ? { fontSize: section.style.fontSize } : {}),
@@ -245,14 +247,14 @@ function SectionRenderer({ section, isPreview, template }: RendererProps) {
 
   let inner: React.ReactNode;
   switch (section.type) {
-    case 'personal-info':    inner = <PersonalInfoRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'summary':          inner = <SummaryRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'experience':       inner = <ExperienceRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'education':        inner = <EducationRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'skills':           inner = <SkillsRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'projects':         inner = <ProjectsRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'certifications':   inner = <CertificationsRenderer section={section} isPreview={isPreview} template={template} />; break;
-    case 'languages':        inner = <LanguagesRenderer section={section} isPreview={isPreview} template={template} />; break;
+    case 'personal-info':    inner = <PersonalInfoRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'summary':          inner = <SummaryRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'experience':       inner = <ExperienceRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'education':        inner = <EducationRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'skills':           inner = <SkillsRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'projects':         inner = <ProjectsRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'certifications':   inner = <CertificationsRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
+    case 'languages':        inner = <LanguagesRenderer section={section} isPreview={isPreview} template={template} darkMode={darkMode} />; break;
     case 'spacer':           inner = <SpacerRenderer section={section} />; break;
     default:                 inner = <div className="p-2 text-muted-foreground text-sm">Custom section</div>;
   }
@@ -265,10 +267,10 @@ function SectionRenderer({ section, isPreview, template }: RendererProps) {
 // Per-section renderers
 // ---------------------------------------------------------------------------
 
-function PersonalInfoRenderer({ section, isPreview, template }: RendererProps) {
+function PersonalInfoRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as PersonalInfoContent;
-  const hs = getHeaderStyle(template);
+  const hs = getHeaderStyle(template, darkMode);
 
   const update = (field: keyof PersonalInfoContent, value: string) =>
     updateSectionContent(section.id, { ...c, [field]: value });
@@ -305,11 +307,11 @@ function PersonalInfoRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function SummaryRenderer({ section, isPreview, template }: RendererProps) {
+function SummaryRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as SummaryContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   return (
     <section className="mb-5">
@@ -322,11 +324,11 @@ function SummaryRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function ExperienceRenderer({ section, isPreview, template }: RendererProps) {
+function ExperienceRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as ExperienceContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateItem = (itemId: string, patch: Partial<ExperienceItem>) =>
     updateSectionContent(section.id, { items: patchItem(c.items, itemId, patch) });
@@ -356,7 +358,7 @@ function ExperienceRenderer({ section, isPreview, template }: RendererProps) {
             {isPreview ? (
               <>
                 <h3 className="text-sm font-semibold" style={{ color: textColor }}>{item.role} — {item.company}</h3>
-                <span className="text-xs" style={{ color: '#666' }}>{item.startDate} – {item.endDate}</span>
+                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{item.startDate} – {item.endDate}</span>
               </>
             ) : (
               <>
@@ -413,11 +415,11 @@ function ExperienceRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function EducationRenderer({ section, isPreview, template }: RendererProps) {
+function EducationRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as EducationContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateItem = (itemId: string, patch: Partial<EducationItem>) =>
     updateSectionContent(section.id, { items: patchItem(c.items, itemId, patch) });
@@ -436,7 +438,7 @@ function EducationRenderer({ section, isPreview, template }: RendererProps) {
             {isPreview ? (
               <>
                 <h3 className="text-sm font-semibold" style={{ color: textColor }}>{item.degree} — {item.institution}</h3>
-                <span className="text-xs" style={{ color: '#666' }}>{item.startDate} – {item.endDate}</span>
+                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{item.startDate} – {item.endDate}</span>
               </>
             ) : (
               <>
@@ -461,7 +463,7 @@ function EducationRenderer({ section, isPreview, template }: RendererProps) {
               </>
             )}
           </div>
-          {item.details && <p className="text-sm" style={{ color: '#555' }}>{item.details}</p>}
+          {item.details && <p className="text-sm" style={{ color: darkMode ? '#9ca3af' : '#555' }}>{item.details}</p>}
         </div>
       ))}
       {!isPreview && (
@@ -473,11 +475,11 @@ function EducationRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function SkillsRenderer({ section, isPreview, template }: RendererProps) {
+function SkillsRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as SkillsContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateCategory = (catId: string, raw: string) => {
     const skills = raw.split(',').map(s => s.trim()).filter(Boolean);
@@ -491,7 +493,7 @@ function SkillsRenderer({ section, isPreview, template }: RendererProps) {
       <h2 className={headingStyle.className} style={headingStyle.style}>{section.title}</h2>
       {c.categories.map(cat => (
         <p key={cat.id} className="text-sm mb-1" style={{ color: textColor }}>
-          <strong>{cat.name}:</strong>{' '}
+          <strong style={{ color: textColor }}>{cat.name}:</strong>{' '}
           {isPreview ? cat.skills.join(', ') : (
             <InlineEdit
               value={cat.skills.join(', ')}
@@ -504,11 +506,11 @@ function SkillsRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function ProjectsRenderer({ section, isPreview, template }: RendererProps) {
+function ProjectsRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as ProjectsContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateItem = (id: string, field: 'name' | 'description' | 'technologies', value: string) =>
     updateSectionContent(section.id, { items: patchItem(c.items, id, { [field]: value }) });
@@ -527,13 +529,13 @@ function ProjectsRenderer({ section, isPreview, template }: RendererProps) {
             <>
               <h3 className="text-sm font-semibold" style={{ color: textColor }}>{item.name}</h3>
               <p className="text-sm" style={{ color: textColor }}>{item.description}</p>
-              <p className="text-sm italic" style={{ color: '#555' }}>{item.technologies}</p>
+              <p className="text-sm italic" style={{ color: darkMode ? '#9ca3af' : '#555' }}>{item.technologies}</p>
             </>
           ) : (
             <>
               <InlineEdit tag="h3" value={item.name} onChange={v => updateItem(item.id, 'name', v)} className="text-sm font-semibold block" style={{ color: textColor }} />
               <InlineEdit tag="p" value={item.description} onChange={v => updateItem(item.id, 'description', v)} className="text-sm block" style={{ color: textColor }} multiline />
-              <InlineEdit tag="p" value={item.technologies} onChange={v => updateItem(item.id, 'technologies', v)} className="text-sm italic block" style={{ color: '#555' }} />
+              <InlineEdit tag="p" value={item.technologies} onChange={v => updateItem(item.id, 'technologies', v)} className="text-sm italic block" style={{ color: darkMode ? '#9ca3af' : '#555' }} />
             </>
           )}
         </div>
@@ -547,11 +549,11 @@ function ProjectsRenderer({ section, isPreview, template }: RendererProps) {
   );
 }
 
-function CertificationsRenderer({ section, isPreview, template }: RendererProps) {
+function CertificationsRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as CertificationsContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateItem = (id: string, field: 'name' | 'issuer' | 'date', value: string) =>
     updateSectionContent(section.id, { items: patchItem(c.items, id, { [field]: value }) });
@@ -591,11 +593,11 @@ function CertificationsRenderer({ section, isPreview, template }: RendererProps)
   );
 }
 
-function LanguagesRenderer({ section, isPreview, template }: RendererProps) {
+function LanguagesRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
   const c = section.content as LanguagesContent;
-  const headingStyle = getHeadingStyle(template);
-  const textColor = getBodyTextColor(template);
+  const headingStyle = getHeadingStyle(template, darkMode);
+  const textColor = getBodyTextColor(template, darkMode);
 
   const updateItem = (id: string, field: 'language' | 'proficiency', value: string) =>
     updateSectionContent(section.id, { items: patchItem(c.items, id, { [field]: value }) });
