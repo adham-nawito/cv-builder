@@ -5,6 +5,7 @@ export type { CVSectionStyle } from '@/types/cv';
 import { createSampleCV } from '@/utils/sampleData';
 import { arrayMove } from '@dnd-kit/sortable';
 import { saveCV as persistCV, saveSession } from '@/lib/storage';
+import { calculateATSScore, type ATSScore } from '@/utils/atsScore';
 
 // ---------------------------------------------------------------------------
 // State & Action types
@@ -241,6 +242,7 @@ interface CVContextValue {
   setSectionStyle: (id: string, style: import('@/types/cv').CVSectionStyle) => void;
   isDirty: boolean;
   markSaved: () => void;
+  atsScore: ATSScore;
 }
 
 const CVContext = createContext<CVContextValue | null>(null);
@@ -274,6 +276,15 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
   // Dirty-state: true whenever cv changes and hasn't been explicitly saved to the named list
   const [isDirty, setIsDirty] = useState(false);
   const markSaved = useCallback(() => setIsDirty(false), []);
+
+  // Debounced ATS score (300 ms) — shared so canvas + panel stay in sync
+  const [atsScore, setAtsScore] = useState<ATSScore>(() => calculateATSScore(state.cv));
+  const atsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (atsTimerRef.current) clearTimeout(atsTimerRef.current);
+    atsTimerRef.current = setTimeout(() => setAtsScore(calculateATSScore(state.cv)), 300);
+    return () => { if (atsTimerRef.current) clearTimeout(atsTimerRef.current); };
+  }, [state.cv]);
 
   // Session auto-save (debounced 500ms) + dirty flag
   useEffect(() => {
@@ -369,8 +380,8 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
   const value = useMemo<CVContextValue>(() => ({
     state, dispatch, addSection, updateSectionContent,
     deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle,
-    isDirty, markSaved,
-  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle, isDirty, markSaved]);
+    isDirty, markSaved, atsScore,
+  }), [state, dispatch, addSection, updateSectionContent, deleteSection, duplicateSection, selectSection, selectedSection, setSectionStyle, isDirty, markSaved, atsScore]);
 
   return (
     <CVContext.Provider value={value}>

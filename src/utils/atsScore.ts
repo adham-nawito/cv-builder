@@ -7,6 +7,9 @@ export interface ATSTip {
   points: number;
 }
 
+/** Maps section type → severity of issues found, used for canvas highlighting */
+export type SectionIssueMap = Record<string, 'critical' | 'warning' | null>;
+
 export interface ATSScore {
   total: number;
   maxScore: number;
@@ -14,6 +17,8 @@ export interface ATSScore {
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
   tips: ATSTip[];
   breakdown: { category: string; score: number; max: number }[];
+  /** Keyed by section.type — worst severity found for that section */
+  sectionIssues: SectionIssueMap;
 }
 
 const POWER_VERBS = [
@@ -177,5 +182,57 @@ export function calculateATSScore(cv: CVData): ATSScore {
   const grade: ATSScore['grade'] =
     percentage >= 95 ? 'A+' : percentage >= 85 ? 'A' : percentage >= 70 ? 'B' : percentage >= 55 ? 'C' : percentage >= 40 ? 'D' : 'F';
 
-  return { total, maxScore, percentage, grade, tips: tips.filter(t => t.points > 0), breakdown };
+  // --- Build section issue map (keyed by section type) ---
+  // Walk the filtered tips and assign the worst severity per section type
+  const sectionTypeForTip: Record<string, string> = {};
+  const filteredTips = tips.filter(t => t.points > 0);
+
+  // Map tip IDs back to section types by re-scoring to determine which tips
+  // belong to which section. We use a heuristic: tips generated within each
+  // scoring block share a section-type prefix derived from their order.
+  // Simpler: re-derive from tip messages and the live tip list.
+  const sectionIssues: SectionIssueMap = {};
+
+  // personal-info
+  const piSection = cv.sections.find(s => s.type === 'personal-info');
+  if (piSection) {
+    const piTips = filteredTips.filter(t =>
+      ['Add your full name', 'Add a valid email', 'Include a phone', 'Add your location', 'Add your LinkedIn'].some(m => t.message.startsWith(m))
+    );
+    if (piTips.some(t => t.category === 'critical')) sectionIssues['personal-info'] = 'critical';
+    else if (piTips.some(t => t.category === 'warning')) sectionIssues['personal-info'] = 'warning';
+    else sectionIssues['personal-info'] = null;
+  }
+
+  const summaryIssues = filteredTips.filter(t =>
+    ['Write a professional summary', 'Summary is too short', 'Summary is lengthy', 'Add quantified', 'Add a Professional Summary'].some(m => t.message.startsWith(m))
+  );
+  if (summaryIssues.some(t => t.category === 'critical')) sectionIssues['summary'] = 'critical';
+  else if (summaryIssues.some(t => t.category === 'warning')) sectionIssues['summary'] = 'warning';
+  else sectionIssues['summary'] = null;
+
+  const expIssues = filteredTips.filter(t =>
+    ['Add work experience', 'Add at least 2', 'Add more bullet', 'Add detailed bullet', 'Start bullets with action', 'Quantify achievements', 'Ensure all roles have'].some(m => t.message.startsWith(m))
+  );
+  if (expIssues.some(t => t.category === 'critical')) sectionIssues['experience'] = 'critical';
+  else if (expIssues.some(t => t.category === 'warning')) sectionIssues['experience'] = 'warning';
+  else sectionIssues['experience'] = null;
+
+  const eduIssues = filteredTips.filter(t =>
+    ['Add an Education', 'Include degree and institution'].some(m => t.message.startsWith(m))
+  );
+  if (eduIssues.some(t => t.category === 'critical')) sectionIssues['education'] = 'critical';
+  else if (eduIssues.some(t => t.category === 'warning')) sectionIssues['education'] = 'warning';
+  else sectionIssues['education'] = null;
+
+  const skillIssues = filteredTips.filter(t =>
+    ['Add more skills', 'Add a Skills', 'Organize skills'].some(m => t.message.startsWith(m))
+  );
+  if (skillIssues.some(t => t.category === 'critical')) sectionIssues['skills'] = 'critical';
+  else if (skillIssues.some(t => t.category === 'warning')) sectionIssues['skills'] = 'warning';
+  else sectionIssues['skills'] = null;
+
+  void sectionTypeForTip; // unused — kept for clarity
+
+  return { total, maxScore, percentage, grade, tips: filteredTips, breakdown, sectionIssues };
 }

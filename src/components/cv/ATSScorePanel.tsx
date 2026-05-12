@@ -1,37 +1,80 @@
 import { useCV } from '@/contexts/CVContext';
-import { calculateATSScore, type ATSScore, type ATSTip } from '../../utils/atsScore';
-import { useMemo, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Info, ChevronDown, ChevronUp, Target, TrendingUp } from 'lucide-react';
+import type { ATSTip } from '../../utils/atsScore';
+import { useState } from 'react';
+import { AlertTriangle, CheckCircle2, Info, ChevronDown, ChevronUp, Target, TrendingUp, Plus } from 'lucide-react';
 import { useI18n } from '../../lib/I18nContext';
+import {
+  RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer,
+} from 'recharts';
+import type { SectionType } from '@/types/cv';
 
 const categoryIcons: Record<ATSTip['category'], typeof AlertTriangle> = {
-  critical: AlertTriangle,
-  warning: Info,
+  critical:   AlertTriangle,
+  warning:    Info,
   suggestion: CheckCircle2,
 };
 
 const categoryColors: Record<ATSTip['category'], string> = {
-  critical: 'text-destructive',
-  warning: 'text-warning',
+  critical:   'text-destructive',
+  warning:    'text-warning',
   suggestion: 'text-muted-foreground',
 };
 
-function GradeRing({ percentage, grade }: { percentage: number; grade: string }) {
-  const r = 40;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (percentage / 100) * circ;
-  const color = percentage >= 85 ? 'hsl(var(--success))' : percentage >= 55 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))';
+const RADIAL_BAR_BG = { fill: 'hsl(var(--border))' };
 
+function badgeColorClass(pct: number): string {
+  if (pct >= 85) return 'bg-success/20 text-success';
+  if (pct >= 55) return 'bg-warning/20 text-warning';
+  return 'bg-destructive/20 text-destructive';
+}
+
+function barColor(ratio: number): string {
+  if (ratio >= 0.8) return 'hsl(var(--success))';
+  if (ratio >= 0.5) return 'hsl(var(--warning))';
+  return 'hsl(var(--destructive))';
+}
+
+// One-click suggestion: maps a tip message prefix → section type to add
+const QUICK_ADD: { match: string; sectionType: SectionType; label: string }[] = [
+  { match: 'Add a Professional Summary', sectionType: 'summary',        label: 'Add Summary' },
+  { match: 'Add a Skills section',       sectionType: 'skills',         label: 'Add Skills' },
+  { match: 'Add an Experience section',  sectionType: 'experience',     label: 'Add Experience' },
+  { match: 'Add an Education section',   sectionType: 'education',      label: 'Add Education' },
+  { match: 'Add a Personal Info',        sectionType: 'personal-info',  label: 'Add Personal Info' },
+];
+
+function scoreColor(pct: number) {
+  if (pct >= 75) return 'hsl(var(--success))';
+  if (pct >= 50) return 'hsl(var(--warning))';
+  return 'hsl(var(--destructive))';
+}
+
+function ScoreGauge({ percentage, grade }: { readonly percentage: number; readonly grade: string }) {
+  const data = [{ value: percentage, fill: scoreColor(percentage) }];
   return (
     <div className="relative w-28 h-28 mx-auto">
-      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="hsl(var(--border))" strokeWidth="8" />
-        <circle cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="8"
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          className="transition-all duration-700 ease-out" />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold">{grade}</span>
+      <ResponsiveContainer width="100%" height="100%">
+        <RadialBarChart
+          cx="50%"
+          cy="50%"
+          innerRadius="70%"
+          outerRadius="100%"
+          startAngle={90}
+          endAngle={-270}
+          data={data}
+          barSize={10}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+          <RadialBar
+            background={RADIAL_BAR_BG}
+            dataKey="value"
+            angleAxisId={0}
+            cornerRadius={5}
+          />
+        </RadialBarChart>
+      </ResponsiveContainer>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span className="text-2xl font-bold leading-none">{grade}</span>
         <span className="text-xs text-muted-foreground">{percentage}%</span>
       </div>
     </div>
@@ -39,12 +82,11 @@ function GradeRing({ percentage, grade }: { percentage: number; grade: string })
 }
 
 export function ATSScorePanel() {
-  const { state } = useCV();
+  const { addSection, atsScore: score } = useCV();
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(true);
   const [showAllTips, setShowAllTips] = useState(false);
 
-  const score: ATSScore = useMemo(() => calculateATSScore(state.cv), [state.cv]);
   const visibleTips = showAllTips ? score.tips : score.tips.slice(0, 4);
 
   return (
@@ -56,42 +98,39 @@ export function ATSScorePanel() {
         <div className="flex items-center gap-2">
           <Target className="w-4 h-4 text-primary" />
           <span className="text-sm font-semibold">{t('ats.title')}</span>
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-            score.percentage >= 85 ? 'bg-success/20 text-success' :
-            score.percentage >= 55 ? 'bg-warning/20 text-warning' :
-            'bg-destructive/20 text-destructive'
-          }`}>{score.percentage}%</span>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${badgeColorClass(score.percentage)}`}>
+            {score.percentage}%
+          </span>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
 
       {expanded && (
         <div className="px-4 pb-4 space-y-4">
-          <GradeRing percentage={score.percentage} grade={score.grade} />
+          <ScoreGauge percentage={score.percentage} grade={score.grade} />
 
           {/* Breakdown bars */}
           <div className="space-y-2">
-            {score.breakdown.map(b => (
-              <div key={b.category} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{b.category}</span>
-                  <span className="font-medium">{b.score}/{b.max}</span>
+            {score.breakdown.map(b => {
+              const ratio = b.score / b.max;
+              return (
+                <div key={b.category} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">{b.category}</span>
+                    <span className="font-medium">{b.score}/{b.max}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${ratio * 100}%`, background: barColor(ratio) }}
+                    />
+                  </div>
                 </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${(b.score / b.max) * 100}%`,
-                      background: b.score / b.max >= 0.8 ? 'hsl(var(--success))' :
-                        b.score / b.max >= 0.5 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Tips */}
+          {/* Tips + one-click suggestions */}
           {visibleTips.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -99,16 +138,29 @@ export function ATSScorePanel() {
               </div>
               {visibleTips.map(tip => {
                 const Icon = categoryIcons[tip.category];
+                const quickAdd = QUICK_ADD.find(q => tip.message.startsWith(q.match));
                 return (
-                  <div key={tip.id} className="flex items-start gap-2 text-xs p-2 rounded-md bg-muted/50">
-                    <Icon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${categoryColors[tip.category]}`} />
-                    <span>{tip.message}</span>
+                  <div key={tip.id} className="text-xs p-2 rounded-md bg-muted/50 space-y-1.5">
+                    <div className="flex items-start gap-2">
+                      <Icon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${categoryColors[tip.category]}`} />
+                      <span>{tip.message}</span>
+                    </div>
+                    {quickAdd && (
+                      <button
+                        onClick={() => addSection(quickAdd.sectionType)}
+                        className="flex items-center gap-1 text-primary hover:underline pl-5"
+                      >
+                        <Plus className="w-3 h-3" /> {quickAdd.label}
+                      </button>
+                    )}
                   </div>
                 );
               })}
               {score.tips.length > 4 && (
-                <button onClick={() => setShowAllTips(!showAllTips)}
-                  className="text-xs text-primary hover:underline">
+                <button
+                  onClick={() => setShowAllTips(!showAllTips)}
+                  className="text-xs text-primary hover:underline"
+                >
                   {showAllTips ? t('ats.showLess') : `${t('ats.showMore')} (${score.tips.length - 4})`}
                 </button>
               )}

@@ -152,9 +152,16 @@ interface Props {
   readonly isPreview?: boolean;
 }
 
+const issueOutline: Record<'critical' | 'warning', string> = {
+  critical: 'ring-1 ring-destructive/60',
+  warning:  'ring-1 ring-warning/60',
+};
+
 export function CVSectionComponent({ section, isPreview }: Props) {
-  const { state, selectSection, deleteSection, duplicateSection, dispatch } = useCV();
+  const { state, selectSection, deleteSection, duplicateSection, dispatch, atsScore } = useCV();
   const isSelected = state.selectedSectionId === section.id;
+  const issue = isPreview ? null : atsScore.sectionIssues[section.type];
+  const issueClass = issue ? issueOutline[issue] : '';
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: section.id, disabled: section.locked || isPreview });
@@ -178,11 +185,11 @@ export function CVSectionComponent({ section, isPreview }: Props) {
   return (
     <div
       ref={setNodeRef}
-      role={isPreview ? undefined : 'button'}
       tabIndex={isPreview ? undefined : 0}
       style={sectionStyle}
+      aria-label={isPreview ? undefined : `${section.title} section`}
       aria-selected={isPreview ? undefined : isSelected}
-      className={`cv-section group ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${isPreview ? '' : 'cursor-pointer'} ${section.hidden ? 'opacity-40' : ''}`}
+      className={`cv-section group ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${isPreview ? '' : 'cursor-pointer'} ${section.hidden ? 'opacity-40' : ''} ${issueClass}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
