@@ -8,6 +8,14 @@ import {
 } from 'recharts';
 import type { SectionType } from '@/types/cv';
 
+const SECTION_TITLE_KEYS: Partial<Record<SectionType, string>> = {
+  'summary':       'section.summary',
+  'skills':        'section.skills',
+  'experience':    'section.experience',
+  'education':     'section.education',
+  'personal-info': 'section.personalInfo',
+};
+
 const categoryIcons: Record<ATSTip['category'], typeof AlertTriangle> = {
   critical:   AlertTriangle,
   warning:    Info,
@@ -147,7 +155,7 @@ export function ATSScorePanel() {
                     </div>
                     {quickAdd && (
                       <button
-                        onClick={() => addSection(quickAdd.sectionType)}
+                        onClick={() => addSection(quickAdd.sectionType, t(SECTION_TITLE_KEYS[quickAdd.sectionType] ?? quickAdd.sectionType))}
                         className="flex items-center gap-1 text-primary hover:underline pl-5"
                       >
                         <Plus className="w-3 h-3" /> {quickAdd.label}

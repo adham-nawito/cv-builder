@@ -1,4 +1,5 @@
 import { useCV } from '@/contexts/CVContext';
+import { useI18n } from '../../lib/I18nContext';
 import { v4 as uuid } from 'uuid';
 import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import type {
@@ -93,27 +94,29 @@ function Divider() {
 
 function PersonalInfoProps({ id, content }: { readonly id: string; readonly content: PersonalInfoContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
   const set = (field: keyof PersonalInfoContent, v: string) =>
     updateSectionContent(id, { ...content, [field]: v });
 
   return (
     <>
-      <Field label="Full Name"  value={content.fullName}  onChange={v => set('fullName', v)} />
-      <Field label="Job Title"  value={content.jobTitle}  onChange={v => set('jobTitle', v)} />
-      <Field label="Email"      value={content.email}     onChange={v => set('email', v)}     type="email" />
-      <Field label="Phone"      value={content.phone}     onChange={v => set('phone', v)}     type="tel" />
-      <Field label="Location"   value={content.location}  onChange={v => set('location', v)} />
-      <Field label="LinkedIn"   value={content.linkedin ?? ''}  onChange={v => set('linkedin', v)}  placeholder="linkedin.com/in/..." />
-      <Field label="Website"    value={content.website  ?? ''}  onChange={v => set('website', v)}   placeholder="yoursite.com" />
+      <Field label={t('field.fullName')}  value={content.fullName}       onChange={v => set('fullName', v)} />
+      <Field label={t('field.jobTitle')}  value={content.jobTitle}       onChange={v => set('jobTitle', v)} />
+      <Field label={t('field.email')}     value={content.email}          onChange={v => set('email', v)}    type="email" />
+      <Field label={t('field.phone')}     value={content.phone}          onChange={v => set('phone', v)}    type="tel" />
+      <Field label={t('field.location')}  value={content.location}       onChange={v => set('location', v)} />
+      <Field label={t('field.linkedin')}  value={content.linkedin ?? ''} onChange={v => set('linkedin', v)} placeholder="linkedin.com/in/..." />
+      <Field label={t('field.website')}   value={content.website  ?? ''} onChange={v => set('website', v)}  placeholder="yoursite.com" />
     </>
   );
 }
 
 function SummaryProps({ id, content }: { readonly id: string; readonly content: SummaryContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
   return (
     <Textarea
-      label="Summary Text"
+      label={t('field.summaryText')}
       value={content.text}
       onChange={v => updateSectionContent(id, { text: v })}
       rows={6}
@@ -123,6 +126,7 @@ function SummaryProps({ id, content }: { readonly id: string; readonly content: 
 
 function ExperienceProps({ id, content }: { readonly id: string; readonly content: ExperienceContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patch = (items: ExperienceItem[]) => updateSectionContent(id, { items });
 
@@ -161,15 +165,15 @@ function ExperienceProps({ id, content }: { readonly id: string; readonly conten
       {content.items.map((item, idx) => (
         <div key={item.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Role {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.role')} {idx + 1}</span>
             <RemoveButton onClick={() => removeItem(item.id)} />
           </div>
-          <Field label="Role"    value={item.role}      onChange={v => updateItem(item.id, 'role', v)} />
-          <Field label="Company" value={item.company}   onChange={v => updateItem(item.id, 'company', v)} />
-          <Field label="Start"   value={item.startDate} onChange={v => updateItem(item.id, 'startDate', v)} placeholder="Jan 2022" />
-          <Field label="End"     value={item.endDate}   onChange={v => updateItem(item.id, 'endDate', v)}   placeholder="Present" />
+          <Field label={t('field.role')}    value={item.role}      onChange={v => updateItem(item.id, 'role', v)} />
+          <Field label={t('field.company')} value={item.company}   onChange={v => updateItem(item.id, 'company', v)} />
+          <Field label={t('field.start')}   value={item.startDate} onChange={v => updateItem(item.id, 'startDate', v)} placeholder="Jan 2022" />
+          <Field label={t('field.end')}     value={item.endDate}   onChange={v => updateItem(item.id, 'endDate', v)}   placeholder="Present" />
           <div>
-            <Label>Bullets</Label>
+            <Label>{t('field.bullets')}</Label>
             <div className="space-y-1.5">
               {item.bullets.map((b, bi) => (
                 <div key={`${item.id}-${bi}`} className="flex gap-1">
@@ -188,18 +192,19 @@ function ExperienceProps({ id, content }: { readonly id: string; readonly conten
               onClick={() => addBullet(item.id)}
               className="mt-1.5 text-xs text-primary hover:underline flex items-center gap-1"
             >
-              <Plus className="w-3 h-3" /> Add bullet
+              <Plus className="w-3 h-3" /> {t('field.addBullet')}
             </button>
           </div>
         </div>
       ))}
-      <AddButton label="Add Role" onClick={addItem} />
+      <AddButton label={t('field.addRole')} onClick={addItem} />
     </div>
   );
 }
 
 function EducationProps({ id, content }: { readonly id: string; readonly content: EducationContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patch = (items: EducationItem[]) => updateSectionContent(id, { items });
   const updateItem = (itemId: string, field: keyof EducationItem, value: string) =>
@@ -215,23 +220,24 @@ function EducationProps({ id, content }: { readonly id: string; readonly content
       {content.items.map((item, idx) => (
         <div key={item.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Entry {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.entry')} {idx + 1}</span>
             <RemoveButton onClick={() => removeItem(item.id)} />
           </div>
-          <Field label="Degree"      value={item.degree}      onChange={v => updateItem(item.id, 'degree', v)} />
-          <Field label="Institution" value={item.institution} onChange={v => updateItem(item.id, 'institution', v)} />
-          <Field label="Start"       value={item.startDate}   onChange={v => updateItem(item.id, 'startDate', v)} placeholder="2018" />
-          <Field label="End"         value={item.endDate}     onChange={v => updateItem(item.id, 'endDate', v)}   placeholder="2022" />
-          <Field label="Details"     value={item.details ?? ''} onChange={v => updateItem(item.id, 'details', v)} placeholder="GPA, honours…" />
+          <Field label={t('field.degree')}      value={item.degree}        onChange={v => updateItem(item.id, 'degree', v)} />
+          <Field label={t('field.institution')} value={item.institution}   onChange={v => updateItem(item.id, 'institution', v)} />
+          <Field label={t('field.start')}       value={item.startDate}     onChange={v => updateItem(item.id, 'startDate', v)} placeholder="2018" />
+          <Field label={t('field.end')}         value={item.endDate}       onChange={v => updateItem(item.id, 'endDate', v)}   placeholder="2022" />
+          <Field label={t('field.details')}     value={item.details ?? ''} onChange={v => updateItem(item.id, 'details', v)}   placeholder="GPA, honours…" />
         </div>
       ))}
-      <AddButton label="Add Entry" onClick={addItem} />
+      <AddButton label={t('field.addEntry')} onClick={addItem} />
     </div>
   );
 }
 
 function SkillsProps({ id, content }: { readonly id: string; readonly content: SkillsContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patchCats = (categories: SkillsContent['categories']) =>
     updateSectionContent(id, { categories });
@@ -267,16 +273,16 @@ function SkillsProps({ id, content }: { readonly id: string; readonly content: S
       {content.categories.map((cat, idx) => (
         <div key={cat.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Category {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.category')} {idx + 1}</span>
             <RemoveButton onClick={() => removeCategory(cat.id)} />
           </div>
           <Field
-            label="Category Name"
+            label={t('field.categoryName')}
             value={cat.name}
             onChange={v => updateCategory(cat.id, 'name', v)}
           />
           <div>
-            <Label>Skills</Label>
+            <Label>{t('field.skills')}</Label>
             <div className="space-y-1.5">
               {cat.skills.map((skill, si) => (
                 <div key={`${cat.id}-${si}`} className="flex gap-1">
@@ -295,18 +301,19 @@ function SkillsProps({ id, content }: { readonly id: string; readonly content: S
               onClick={() => addSkill(cat.id)}
               className="mt-1.5 text-xs text-primary hover:underline flex items-center gap-1"
             >
-              <Plus className="w-3 h-3" /> Add skill
+              <Plus className="w-3 h-3" /> {t('field.addSkill')}
             </button>
           </div>
         </div>
       ))}
-      <AddButton label="Add Category" onClick={addCategory} />
+      <AddButton label={t('field.addCategory')} onClick={addCategory} />
     </div>
   );
 }
 
 function ProjectsProps({ id, content }: { readonly id: string; readonly content: ProjectsContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patch = (items: ProjectsContent['items']) => updateSectionContent(id, { items });
   const updateItem = (itemId: string, field: keyof ProjectsContent['items'][number], value: string) =>
@@ -322,22 +329,23 @@ function ProjectsProps({ id, content }: { readonly id: string; readonly content:
       {content.items.map((item, idx) => (
         <div key={item.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Project {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.project')} {idx + 1}</span>
             <RemoveButton onClick={() => removeItem(item.id)} />
           </div>
-          <Field label="Name"         value={item.name}         onChange={v => updateItem(item.id, 'name', v)} />
-          <Textarea label="Description" value={item.description} onChange={v => updateItem(item.id, 'description', v)} rows={3} />
-          <Field label="Technologies" value={item.technologies} onChange={v => updateItem(item.id, 'technologies', v)} placeholder="React, Node.js…" />
-          <Field label="Link"         value={item.link ?? ''}   onChange={v => updateItem(item.id, 'link', v)}         placeholder="https://…" />
+          <Field label={t('field.name')}         value={item.name}         onChange={v => updateItem(item.id, 'name', v)} />
+          <Textarea label={t('field.description')} value={item.description} onChange={v => updateItem(item.id, 'description', v)} rows={3} />
+          <Field label={t('field.technologies')} value={item.technologies} onChange={v => updateItem(item.id, 'technologies', v)} placeholder="React, Node.js…" />
+          <Field label={t('field.link')}         value={item.link ?? ''}   onChange={v => updateItem(item.id, 'link', v)}         placeholder="https://…" />
         </div>
       ))}
-      <AddButton label="Add Project" onClick={addItem} />
+      <AddButton label={t('field.addProject')} onClick={addItem} />
     </div>
   );
 }
 
 function CertificationsProps({ id, content }: { readonly id: string; readonly content: CertificationsContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patch = (items: CertificationsContent['items']) => updateSectionContent(id, { items });
   const updateItem = (itemId: string, field: keyof CertificationsContent['items'][number], value: string) =>
@@ -353,21 +361,22 @@ function CertificationsProps({ id, content }: { readonly id: string; readonly co
       {content.items.map((item, idx) => (
         <div key={item.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Cert {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.cert')} {idx + 1}</span>
             <RemoveButton onClick={() => removeItem(item.id)} />
           </div>
-          <Field label="Name"   value={item.name}   onChange={v => updateItem(item.id, 'name', v)} />
-          <Field label="Issuer" value={item.issuer} onChange={v => updateItem(item.id, 'issuer', v)} />
-          <Field label="Date"   value={item.date}   onChange={v => updateItem(item.id, 'date', v)} placeholder="2024" />
+          <Field label={t('field.name')}   value={item.name}   onChange={v => updateItem(item.id, 'name', v)} />
+          <Field label={t('field.issuer')} value={item.issuer} onChange={v => updateItem(item.id, 'issuer', v)} />
+          <Field label={t('field.date')}   value={item.date}   onChange={v => updateItem(item.id, 'date', v)} placeholder="2024" />
         </div>
       ))}
-      <AddButton label="Add Certification" onClick={addItem} />
+      <AddButton label={t('field.addCertification')} onClick={addItem} />
     </div>
   );
 }
 
 function LanguagesProps({ id, content }: { readonly id: string; readonly content: LanguagesContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
 
   const patch = (items: LanguagesContent['items']) => updateSectionContent(id, { items });
   const updateItem = (itemId: string, field: 'language' | 'proficiency', value: string) =>
@@ -380,27 +389,28 @@ function LanguagesProps({ id, content }: { readonly id: string; readonly content
       {content.items.map((item, idx) => (
         <div key={item.id} className="space-y-2 p-3 bg-muted/40 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Language {idx + 1}</span>
+            <span className="text-xs font-semibold text-muted-foreground">{t('entry.language')} {idx + 1}</span>
             <RemoveButton onClick={() => removeItem(item.id)} />
           </div>
-          <Field label="Language"    value={item.language}    onChange={v => updateItem(item.id, 'language', v)} />
-          <Field label="Proficiency" value={item.proficiency} onChange={v => updateItem(item.id, 'proficiency', v)} placeholder="Native / Fluent / B2…" />
+          <Field label={t('field.language')}    value={item.language}    onChange={v => updateItem(item.id, 'language', v)} />
+          <Field label={t('field.proficiency')} value={item.proficiency} onChange={v => updateItem(item.id, 'proficiency', v)} placeholder="Native / Fluent / B2…" />
         </div>
       ))}
-      <AddButton label="Add Language" onClick={addItem} />
+      <AddButton label={t('field.addLanguage')} onClick={addItem} />
     </div>
   );
 }
 
 function SpacerProps({ id, content }: { readonly id: string; readonly content: SpacerContent }) {
   const { updateSectionContent } = useCV();
+  const { t } = useI18n();
   return (
     <div>
-      <Label>Height (px)</Label>
+      <Label>{t('field.height')}</Label>
       <input
         type="number"
         value={content.height}
-        onChange={e => updateSectionContent(id, { height: parseInt(e.target.value) || 8 })}
+        onChange={e => updateSectionContent(id, { height: Number.parseInt(e.target.value) || 8 })}
         className="w-full property-input rounded-md px-2"
         min={8}
         max={200}
@@ -471,16 +481,17 @@ function SliderField({
 
 export function PropertiesPanel() {
   const { selectedSection, dispatch, setSectionStyle } = useCV();
+  const { t } = useI18n();
 
   if (!selectedSection) {
     return (
-      <div className="w-64 border-l border-border bg-card hidden lg:flex flex-col">
+      <div className="w-64 border-s border-border bg-card hidden lg:flex flex-col">
         <div className="p-4 border-b border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Properties</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('props.title')}</h3>
         </div>
         <div className="flex-1 flex items-center justify-center p-6 flex-col gap-2">
-          <p className="text-sm text-muted-foreground text-center">Select a section to edit its properties</p>
-          <p className="text-xs text-muted-foreground/60 text-center">⌘K to open command palette</p>
+          <p className="text-sm text-muted-foreground text-center">{t('props.noSelection')}</p>
+          <p className="text-xs text-muted-foreground/60 text-center">{t('props.cmdHint')}</p>
         </div>
       </div>
     );
@@ -491,13 +502,13 @@ export function PropertiesPanel() {
   const spacing  = style?.spacing  ?? 20;
 
   return (
-    <div className="w-64 border-l border-border bg-card hidden lg:flex flex-col overflow-hidden">
+    <div className="w-64 border-s border-border bg-card hidden lg:flex flex-col overflow-hidden">
       <div className="p-4 border-b border-border flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Properties</h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('props.title')}</h3>
         <button
           onClick={() => dispatch({ type: 'TOGGLE_VISIBILITY', payload: id })}
           className={`p-1 rounded transition-colors ${hidden ? 'text-muted-foreground/40 hover:text-muted-foreground' : 'text-primary hover:text-primary/70'}`}
-          title={hidden ? 'Show section' : 'Hide section'}
+          title={hidden ? t('props.showSection') : t('props.hideSection')}
         >
           {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
@@ -506,7 +517,7 @@ export function PropertiesPanel() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Section title */}
         <div>
-          <Label>Section Title</Label>
+          <Label>{t('props.sectionTitle')}</Label>
           <input
             type="text"
             value={title}
@@ -518,7 +529,7 @@ export function PropertiesPanel() {
 
         {/* Style controls */}
         <SliderField
-          label="Font Size"
+          label={t('props.fontSize')}
           value={fontSize}
           min={10}
           max={20}
@@ -527,7 +538,7 @@ export function PropertiesPanel() {
           onChange={v => setSectionStyle(id, { fontSize: v })}
         />
         <SliderField
-          label="Section Spacing"
+          label={t('props.spacing')}
           value={spacing}
           min={4}
           max={60}
@@ -553,7 +564,7 @@ export function PropertiesPanel() {
 
         {/* Per-section ATS tips */}
         <div className="bg-accent/50 rounded-lg p-3">
-          <p className="text-xs font-semibold text-accent-foreground mb-1">ATS Tips</p>
+          <p className="text-xs font-semibold text-accent-foreground mb-1">{t('props.atsTips')}</p>
           <ul className="text-xs text-muted-foreground space-y-1">
             {ATS_TIPS[type]?.map(tip => (
               <li key={tip}>• {tip}</li>

@@ -172,6 +172,24 @@
   }
 }
 
+/* RTL mirroring */
+[dir="rtl"] .cv-paper {
+  /* CV content uses text-align inherited from dir; no manual flip needed */
+  direction: rtl;
+}
+
+/* Drag handle: flip from left to right in RTL */
+[dir="rtl"] .cv-section .absolute.-left-6 {
+  left: auto;
+  right: -1.5rem;
+}
+
+/* Section toolbar: flip from right to left in RTL */
+[dir="rtl"] .cv-section .absolute.-top-8.right-0 {
+  right: auto;
+  left: 0;
+}
+
 /* Print styles */
 @media print {
   /* Hide all editor chrome */

@@ -1,4 +1,5 @@
 import { useCV } from '@/contexts/CVContext';
+import { useI18n } from '../../lib/I18nContext';
 import { useEffect, useState } from 'react';
 import {
   Command, CommandDialog, CommandEmpty, CommandGroup,
@@ -24,6 +25,19 @@ const SECTION_ICONS: Record<SectionType, typeof User> = {
   'spacer':         Minus,
 };
 
+const SECTION_LABEL_KEYS: Record<SectionType, string> = {
+  'personal-info':  'section.personalInfo',
+  'summary':        'section.summary',
+  'experience':     'section.experience',
+  'education':      'section.education',
+  'skills':         'section.skills',
+  'projects':       'section.projects',
+  'certifications': 'section.certifications',
+  'languages':      'section.languages',
+  'custom':         'section.custom',
+  'spacer':         'section.spacer',
+};
+
 const TEMPLATES: { key: TemplateType; label: string }[] = [
   { key: 'classic',   label: 'Classic'   },
   { key: 'modern',    label: 'Modern'    },
@@ -40,6 +54,7 @@ interface Props {
 
 export function CommandPalette({ open, onClose, onExportPDF }: Props) {
   const { state, dispatch, addSection, selectSection } = useCV();
+  const { t } = useI18n();
 
   const runAndClose = (fn: () => void) => {
     fn();
@@ -49,11 +64,11 @@ export function CommandPalette({ open, onClose, onExportPDF }: Props) {
   return (
     <CommandDialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <Command>
-        <CommandInput placeholder="Type a command or search…" />
+        <CommandInput placeholder={t('cmd.placeholder')} />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{t('cmd.empty')}</CommandEmpty>
 
-          <CommandGroup heading="Sections — Jump to">
+          <CommandGroup heading={t('cmd.jumpTo')}>
             {state.cv.sections.map(section => {
               const Icon = SECTION_ICONS[section.type] ?? SquarePlus;
               return (
@@ -70,16 +85,16 @@ export function CommandPalette({ open, onClose, onExportPDF }: Props) {
 
           <CommandSeparator />
 
-          <CommandGroup heading="Add Section">
+          <CommandGroup heading={t('cmd.addSection')}>
             {(Object.keys(SECTION_ICONS) as SectionType[]).map(type => {
               const Icon = SECTION_ICONS[type];
               return (
                 <CommandItem
                   key={type}
-                  onSelect={() => runAndClose(() => addSection(type))}
+                  onSelect={() => runAndClose(() => addSection(type, t(SECTION_LABEL_KEYS[type])))}
                 >
                   <Icon className="w-4 h-4 mr-2 text-primary" />
-                  Add {type.replace('-', ' ')}
+                  {t('cmd.add')} {t(SECTION_LABEL_KEYS[type])}
                   <span className="ml-auto">
                     <Plus className="w-3 h-3 text-muted-foreground" />
                   </span>
@@ -90,7 +105,7 @@ export function CommandPalette({ open, onClose, onExportPDF }: Props) {
 
           <CommandSeparator />
 
-          <CommandGroup heading="Templates">
+          <CommandGroup heading={t('cmd.templates')}>
             {TEMPLATES.map(tpl => (
               <CommandItem
                 key={tpl.key}
@@ -99,7 +114,7 @@ export function CommandPalette({ open, onClose, onExportPDF }: Props) {
                 <Layout className="w-4 h-4 mr-2 text-muted-foreground" />
                 {tpl.label}
                 {state.cv.template === tpl.key && (
-                  <span className="ml-auto text-xs text-primary font-medium">active</span>
+                  <span className="ml-auto text-xs text-primary font-medium">{t('cmd.active')}</span>
                 )}
               </CommandItem>
             ))}
@@ -107,23 +122,23 @@ export function CommandPalette({ open, onClose, onExportPDF }: Props) {
 
           <CommandSeparator />
 
-          <CommandGroup heading="Actions">
+          <CommandGroup heading={t('cmd.actions')}>
             <CommandItem onSelect={() => runAndClose(() => dispatch({ type: 'TOGGLE_PREVIEW' }))}>
               {state.isPreviewMode
-                ? <><EyeOff className="w-4 h-4 mr-2" /> Exit Preview</>
-                : <><Eye className="w-4 h-4 mr-2" /> Preview CV</>
+                ? <><EyeOff className="w-4 h-4 mr-2" /> {t('cmd.exitPreview')}</>
+                : <><Eye    className="w-4 h-4 mr-2" /> {t('cmd.previewCV')}</>
               }
             </CommandItem>
             <CommandItem onSelect={() => runAndClose(() => dispatch({ type: 'UNDO' }))}>
-              <Undo2 className="w-4 h-4 mr-2" /> Undo
+              <Undo2 className="w-4 h-4 mr-2" /> {t('cmd.undo')}
               <span className="ml-auto text-xs text-muted-foreground">⌘Z</span>
             </CommandItem>
             <CommandItem onSelect={() => runAndClose(() => dispatch({ type: 'REDO' }))}>
-              <Redo2 className="w-4 h-4 mr-2" /> Redo
+              <Redo2 className="w-4 h-4 mr-2" /> {t('cmd.redo')}
               <span className="ml-auto text-xs text-muted-foreground">⌘⇧Z</span>
             </CommandItem>
             <CommandItem onSelect={() => runAndClose(onExportPDF)}>
-              <Download className="w-4 h-4 mr-2" /> Export PDF
+              <Download className="w-4 h-4 mr-2" /> {t('cmd.exportPdf')}
             </CommandItem>
           </CommandGroup>
         </CommandList>

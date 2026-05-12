@@ -22,7 +22,7 @@ interface CVState {
 
 type Action =
   | { type: 'SET_CV'; payload: CVData }
-  | { type: 'ADD_SECTION'; payload: { sectionType: SectionType; index?: number } }
+  | { type: 'ADD_SECTION'; payload: { sectionType: SectionType; title?: string; index?: number } }
   | { type: 'UPDATE_SECTION'; payload: { id: string; updates: Partial<CVSection> } }
   | { type: 'UPDATE_SECTION_CONTENT'; payload: { id: string; content: SectionContent } }
   | { type: 'DELETE_SECTION'; payload: string }
@@ -111,11 +111,11 @@ function reducer(state: CVState, action: Action): CVState {
       return { ...state, cv: action.payload };
 
     case 'ADD_SECTION': {
-      const { sectionType, index } = action.payload;
+      const { sectionType, title, index } = action.payload;
       const newSection: CVSection = {
         id: uuid(),
         type: sectionType,
-        title: SECTION_TITLES[sectionType],
+        title: title ?? SECTION_TITLES[sectionType],
         content: getDefaultContent(sectionType),
       };
       const sections = [...state.cv.sections];
@@ -233,7 +233,7 @@ function reducer(state: CVState, action: Action): CVState {
 interface CVContextValue {
   state: CVState;
   dispatch: React.Dispatch<Action>;
-  addSection: (type: SectionType) => void;
+  addSection: (type: SectionType, title?: string) => void;
   updateSectionContent: (id: string, content: SectionContent) => void;
   deleteSection: (id: string) => void;
   duplicateSection: (id: string) => void;
@@ -351,8 +351,8 @@ export function CVProvider({ children }: { readonly children: React.ReactNode })
     return () => globalThis.removeEventListener('keydown', handler);
   }, []);
 
-  const addSection = useCallback((type: SectionType) => {
-    dispatch({ type: 'ADD_SECTION', payload: { sectionType: type } });
+  const addSection = useCallback((type: SectionType, title?: string) => {
+    dispatch({ type: 'ADD_SECTION', payload: { sectionType: type, title } });
   }, []);
 
   const updateSectionContent = useCallback((id: string, content: SectionContent) => {
