@@ -1,54 +1,131 @@
-# React + TypeScript + Vite
+# CVForge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based CV builder that lets you compose, edit, and export a professional resume entirely in the browser — no account or server required. Everything is stored in `localStorage`.
 
-Currently, two official plugins are available:
+![CVForge screenshot](public/screenshot.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+### Editor
+- **Drag-and-drop section palette** — add Personal Info, Summary, Experience, Education, Skills, Projects, Certifications, Languages, or a custom HTML block from the side panel
+- **Inline editing** — click any section on the canvas to edit it in place; changes are reflected immediately in the preview
+- **Undo / redo** — full history stack (keyboard shortcuts `Ctrl+Z` / `Ctrl+Shift+Z`)
+- **Section reordering** — drag sections up and down on the canvas
+- **Lock / hide sections** — prevent accidental edits or hide a section without deleting it
+- **Per-section font size and spacing overrides** — fine-tune spacing without touching the template
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Templates
+Five built-in visual templates:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+| Template | Style |
+|---|---|
+| Classic | Clean, traditional two-column header |
+| Modern | Accent-color sidebar |
+| Minimal | White space, no decorations |
+| Executive | Bold headings, serif feel |
+| Creative | Coloured header band |
+
+Switch templates live — the same content re-renders instantly.
+
+### ATS Score
+A real-time ATS (Applicant Tracking System) score panel grades your CV from F to A+ across six categories:
+
+- **Personal Info** (contact completeness, job title)
+- **Summary** (length, power-verb usage)
+- **Experience** (bullet count, quantified achievements, power verbs)
+- **Education** (degree, institution)
+- **Skills** (category count, skill count)
+- **Languages** (items with proficiency level)
+
+The panel highlights which sections need attention and shows actionable tips sorted by severity (critical → warning → suggestion).
+
+### Export
+- **PDF** — high-resolution A4 via `html2canvas` + `jsPDF`
+- **HTML** — self-contained single-file HTML you can host anywhere
+- **DOCX** — Word-compatible document via `docx`
+
+### Import
+- **JSON file** — re-import a previously exported CVForge JSON
+- **LinkedIn PDF** — paste or upload a LinkedIn PDF export; the parser extracts name, headline, experience, education, and skills
+
+### Internationalisation
+The entire UI is available in **7 languages**: English, French, German, Spanish, Arabic (RTL), Chinese, Japanese. Switch language from the Navbar; CV date strings (e.g. "Jan 2021", "2018-05") are re-formatted with the active locale automatically.
+
+### Multiple CVs & session recovery
+- Save and manage multiple named CVs from the Manage panel
+- Duplicate an existing CV as a starting point
+- If you close the tab mid-edit, a recovery prompt offers to restore the unsaved draft on next visit
+
+### Dark mode
+Full dark-mode support for the editor UI. The CV canvas itself always renders in light mode so the exported output matches what employers see.
+
+## Tech stack
+
+| Layer | Library |
+|---|---|
+| UI framework | React 18 + TypeScript |
+| Build tool | Vite |
+| Styling | Tailwind CSS + shadcn/ui |
+| State management | React Context + `useReducer` |
+| Schema validation | Zod |
+| PDF export | html2canvas + jsPDF |
+| DOCX export | docx |
+| Date formatting | date-fns |
+| Testing | Vitest + Testing Library + jest-axe |
+| E2E testing | Playwright |
+
+## Getting started
+
+```bash
+pnpm install
+pnpm dev          # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+pnpm build        # production build → dist/
+pnpm test         # unit + component tests (Vitest)
+pnpm test:e2e     # end-to-end tests (Playwright)
 ```
+
+## Project structure
+
+```
+src/
+├── components/
+│   ├── cv/           # Editor panels, canvas, section renderers
+│   └── ui/           # shadcn/ui primitives
+├── lib/
+│   ├── storage.ts    # localStorage persistence
+│   ├── dateFormat.ts # locale-aware CV date formatting
+│   └── translations.ts
+├── schemas/
+│   └── cv.ts         # Zod schemas + validateCVData()
+├── types/
+│   └── cv.ts         # TypeScript interfaces
+├── utils/
+│   ├── atsScore.ts   # ATS scoring engine
+│   ├── exportUtils.ts / exportDocx.ts / generateHTML.ts
+│   ├── linkedinParser.ts
+│   └── migrateSchema.ts
+└── test/             # Vitest unit + component + a11y tests
+e2e/                  # Playwright end-to-end tests
+```
+
+## Storage
+
+All CV data is persisted in the browser's `localStorage` under two keys:
+
+| Key | Contents |
+|---|---|
+| `cvforge:cvs` | Array of all saved CVs (JSON) |
+| `cvforge:active` | ID of the last active CV |
+
+Each item is validated against the Zod schema on load and silently dropped if it fails, protecting against corrupted or legacy data. A schema migration layer (`migrateSchema`) handles version upgrades automatically.
+
+## Accessibility
+
+All section renderers are tested with `jest-axe` (axe-core) to ensure zero WCAG violations out of the box.
+
+## License
+
+MIT
