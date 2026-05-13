@@ -6,16 +6,6 @@ import { v4 as uuid } from 'uuid';
 const LIST_KEY    = 'cvforge:cvs';
 const SESSION_KEY = 'cvforge_current';
 
-export function checkStorageQuota(): boolean {
-  try {
-    const test = '__quota_test__';
-    localStorage.setItem(test, test);
-    localStorage.removeItem(test);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function saveCV(cv: CVData): void {
   const all = loadAllCVs();

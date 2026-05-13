@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveCV, loadAllCVs, loadCV, deleteCV, setActiveCV, getActiveCV, checkStorageQuota } from '@/lib/storage';
+import { saveCV, loadAllCVs, loadCV, deleteCV, setActiveCV, getActiveCV } from '@/lib/storage';
 import type { CVData } from '@/types/cv';
 
 const makeCV = (id: string): CVData => ({
@@ -16,10 +16,6 @@ beforeEach(() => {
 });
 
 describe('storage', () => {
-  it('checkStorageQuota returns true when localStorage is available', () => {
-    expect(checkStorageQuota()).toBe(true);
-  });
-
   it('loadAllCVs returns empty array when nothing saved', () => {
     expect(loadAllCVs()).toEqual([]);
   });

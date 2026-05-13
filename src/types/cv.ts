@@ -142,16 +142,3 @@ export interface CVState {
   isDarkMode: boolean;
   isPreviewMode: boolean;
 }
-
-export const SECTION_LABELS: Record<SectionType, string> = {
-  'personal-info': 'Personal Info',
-  'summary': 'Summary',
-  'experience': 'Experience',
-  'education': 'Education',
-  'skills': 'Skills',
-  'projects': 'Projects',
-  'certifications': 'Certifications',
-  'languages': 'Languages',
-  'custom': 'Custom Section',
-  'spacer': 'Spacer',
-};

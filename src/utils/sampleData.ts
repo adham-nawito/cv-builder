@@ -107,14 +107,3 @@ export function createSampleCV(): CVData {
     ],
   };
 }
-
-export function createEmptyCV(): CVData {
-  return {
-    id: uuid(),
-    name: 'Untitled CV',
-    template: 'classic',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    sections: [],
-  };
-}

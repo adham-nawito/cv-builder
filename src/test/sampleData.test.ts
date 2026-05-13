@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createSampleCV, createEmptyCV } from '@/utils/sampleData';
+import { createSampleCV } from '@/utils/sampleData';
 import { calculateATSScore } from '@/utils/atsScore';
 
 describe('createSampleCV', () => {
@@ -80,23 +80,5 @@ describe('createSampleCV', () => {
   it('has template set to classic', () => {
     const cv = createSampleCV();
     expect(cv.template).toBe('classic');
-  });
-});
-
-describe('createEmptyCV', () => {
-  it('returns a CV with no sections', () => {
-    const cv = createEmptyCV();
-    expect(cv.sections).toHaveLength(0);
-  });
-
-  it('has a unique id each call', () => {
-    const a = createEmptyCV();
-    const b = createEmptyCV();
-    expect(a.id).not.toBe(b.id);
-  });
-
-  it('name defaults to Untitled CV', () => {
-    const cv = createEmptyCV();
-    expect(cv.name).toBe('Untitled CV');
   });
 });
