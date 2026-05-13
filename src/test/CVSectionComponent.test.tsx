@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CVProvider } from '@/contexts/CVContext';
+import { I18nProvider } from '@/lib/I18nContext';
 import { CVSectionComponent } from '@/components/cv/CVSectionComponent';
 import type { CVSection } from '@/types/cv';
 
 function renderSection(section: CVSection) {
   return render(
-    <CVProvider>
-      <CVSectionComponent section={section} isPreview />
-    </CVProvider>,
+    <I18nProvider>
+      <CVProvider>
+        <CVSectionComponent section={section} isPreview />
+      </CVProvider>
+    </I18nProvider>,
   );
 }
 

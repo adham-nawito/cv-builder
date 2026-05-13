@@ -10,6 +10,8 @@ import { Trash2, Copy, Lock, Unlock, GripVertical, Plus } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React, { useCallback, memo } from 'react';
+import { useI18n } from '@/lib/I18nContext';
+import { formatCVDate } from '@/lib/dateFormat';
 
 type Template = TemplateType;
 
@@ -326,6 +328,7 @@ function SummaryRenderer({ section, isPreview, template, darkMode }: RendererPro
 
 function ExperienceRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
+  const { locale } = useI18n();
   const c = section.content as ExperienceContent;
   const headingStyle = getHeadingStyle(template, darkMode);
   const textColor = getBodyTextColor(template, darkMode);
@@ -358,7 +361,7 @@ function ExperienceRenderer({ section, isPreview, template, darkMode }: Renderer
             {isPreview ? (
               <>
                 <h3 className="text-sm font-semibold" style={{ color: textColor }}>{item.role} — {item.company}</h3>
-                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{item.startDate} – {item.endDate}</span>
+                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{formatCVDate(item.startDate, locale)} – {formatCVDate(item.endDate, locale)}</span>
               </>
             ) : (
               <>
@@ -417,6 +420,7 @@ function ExperienceRenderer({ section, isPreview, template, darkMode }: Renderer
 
 function EducationRenderer({ section, isPreview, template, darkMode }: RendererProps) {
   const { updateSectionContent } = useCV();
+  const { locale } = useI18n();
   const c = section.content as EducationContent;
   const headingStyle = getHeadingStyle(template, darkMode);
   const textColor = getBodyTextColor(template, darkMode);
@@ -438,7 +442,7 @@ function EducationRenderer({ section, isPreview, template, darkMode }: RendererP
             {isPreview ? (
               <>
                 <h3 className="text-sm font-semibold" style={{ color: textColor }}>{item.degree} — {item.institution}</h3>
-                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{item.startDate} – {item.endDate}</span>
+                <span className="text-xs" style={{ color: darkMode ? '#9ca3af' : '#666' }}>{formatCVDate(item.startDate, locale)} – {formatCVDate(item.endDate, locale)}</span>
               </>
             ) : (
               <>

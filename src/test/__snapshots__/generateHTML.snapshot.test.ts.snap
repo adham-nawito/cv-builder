@@ -1,0 +1,529 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateHTML snapshots > generates stable HTML for the classic template fixture 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot is stable for template: classic 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot is stable for template: creative 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot is stable for template: executive 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot is stable for template: minimal 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot is stable for template: modern 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe - CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+    <header>
+      <h1>Jane Doe</h1>
+      <p>Senior Engineer</p>
+      <p>jane@example.com | +1-555-0000 | New York, NY</p>
+      <p>linkedin.com/in/janedoe | janedoe.dev</p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p>Results-driven engineer with 8+ years building scalable systems.</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <div>
+        <h3>Senior Engineer — Acme Corp</h3>
+        <p>Jan 2021 – Present</p>
+        <ul>
+          <li>Led team of 5</li>
+          <li>Reduced latency by 40%</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div>
+        <h3>B.Sc. Computer Science — MIT</h3>
+        <p>2013 – 2017</p>
+        <p>GPA: 3.9</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <p><strong>Languages:</strong> TypeScript, Python</p>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div>
+        <h3>CVForge</h3>
+        <p>A CV builder app</p>
+        <p><em>React, TypeScript</em></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Certifications</h2>
+      <ul>
+      <li>AWS SAA — Amazon (2023)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <ul>
+      <li>English — Native</li>
+      <li>Arabic — Professional</li>
+      </ul>
+    </section>
+</body>
+</html>"
+`;
+
+exports[`generateHTML snapshots > snapshot of empty CV is stable 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 18px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 24px; color: #1e40af; }
+    h3 { font-size: 15px; margin: 12px 0 4px; }
+    p { margin: 4px 0; }
+    ul { margin: 4px 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    header p { color: #555; }
+  </style>
+</head>
+<body>
+
+</body>
+</html>"
+`;

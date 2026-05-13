@@ -1,4 +1,6 @@
 import type { CVData } from '@/types/cv';
+import { validateCVData } from '@/schemas/cv';
+import { migrateSchema } from '@/utils/migrateSchema';
 import { v4 as uuid } from 'uuid';
 
 const LIST_KEY    = 'cvforge:cvs';
@@ -29,7 +31,12 @@ export function loadAllCVs(): CVData[] {
   try {
     const raw = localStorage.getItem(LIST_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as CVData[];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((item: unknown) => {
+      const result = validateCVData(item);
+      return result.success ? [migrateSchema(result.data as CVData)] : [];
+    });
   } catch {
     return [];
   }
@@ -79,7 +86,8 @@ export function loadSession(): CVData | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as CVData;
+    const result = validateCVData(JSON.parse(raw));
+    return result.success ? migrateSchema(result.data as CVData) : null;
   } catch {
     return null;
   }

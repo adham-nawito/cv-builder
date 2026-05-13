@@ -6,6 +6,7 @@ import { exportPDF, exportHTML } from '@/utils/exportUtils';
 import { exportDOCX } from '@/utils/exportDocx';
 import { saveCV } from '@/lib/storage';
 import { parseLinkedInPDF } from '@/utils/linkedinParser';
+import { validateCVData } from '@/schemas/cv';
 import { SaveLoadManager } from './SaveLoadManager';
 import { ExportDialog } from './ExportDialog';
 import { useState, useCallback, useRef } from 'react';
@@ -86,9 +87,11 @@ export function Navbar() {
       const text = ev.target?.result as string;
       try {
         if (file.name.endsWith('.json')) {
-          const data = JSON.parse(text) as CVData;
-          if (data.sections && data.id) {
-            dispatch({ type: 'IMPORT_CV', payload: { ...data, updatedAt: new Date().toISOString() } });
+          const parsed = validateCVData(JSON.parse(text));
+          if (parsed.success) {
+            dispatch({ type: 'IMPORT_CV', payload: { ...parsed.data, updatedAt: new Date().toISOString() } });
+          } else {
+            console.error('Invalid CV file:', parsed.error);
           }
         } else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) {
           const newCV = parseHTMLToCV(text, {

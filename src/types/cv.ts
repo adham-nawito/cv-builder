@@ -127,6 +127,7 @@ export type TemplateType = 'classic' | 'modern' | 'minimal' | 'executive' | 'cre
 export interface CVData {
   id: string;
   name: string;
+  version?: string;
   sections: CVSection[];
   template: TemplateType;
   createdAt: string;
